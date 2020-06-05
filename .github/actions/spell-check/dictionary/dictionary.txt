@@ -97786,6 +97786,7 @@ dalesman
 dalesmen
 dalespeople
 daleswoman
+dalet
 daleth
 daleths
 Daleville
@@ -107561,6 +107562,7 @@ dialystelic
 dialystely
 dialytic
 dialytically
+dialytika
 dialyzability
 dialyzable
 dialyzate
@@ -114004,6 +114006,7 @@ djalmaite
 Djambi
 djasakid
 djave
+dje
 djebel
 djebels
 djehad
@@ -120418,11 +120421,13 @@ DZ
 dz
 dz.
 Dzaudzhikau
+dze
 dzeren
 dzerin
 dzeron
 Dzerzhinsk
 Dzhambul
+dzhe
 Dzhugashvili
 dziggetai
 dzo
@@ -158966,6 +158971,7 @@ Ghaznevid
 Ghazzah
 Ghazzali
 ghbor
+ghe
 Gheber
 gheber
 ghebeta
@@ -160166,6 +160172,7 @@ gizzards
 gizzen
 gizzened
 gizzern
+gje
 gjedost
 Gjellerup
 gjetost
@@ -212347,6 +212354,7 @@ Kizilbash
 Kizzee
 Kizzie
 kJ
+kje
 Kjeldahl
 kjeldahlization
 kjeldahlize
@@ -224856,6 +224864,7 @@ lizzie
 Lizzy
 LJ
 LJBF
+lje
 Ljod
 Ljoka
 Ljubljana
@@ -261607,6 +261616,7 @@ N.J.
 NJ
 nj
 njave
+nje
 Njord
 Njorth
 NKGB
@@ -274785,6 +274795,7 @@ Ogma
 ogmic
 Ogmios
 OGO
+ogonek
 ogonium
 Ogor
 O'Gowan
@@ -329834,6 +329845,7 @@ QN
 qn
 QNP
 QNS
+qof
 Qoheleth
 Qom
 qoph
@@ -371408,6 +371420,7 @@ Shaysite
 shazam
 Shazar
 SHCD
+shcha
 Shcheglovsk
 Shcherbakov
 she
@@ -420973,6 +420986,7 @@ tonometry
 Tonopah
 tonophant
 tonoplast
+tonos
 tonoscope
 tonotactic
 tonotaxis
@@ -428676,6 +428690,7 @@ tsetses
 TSF
 TSgt
 TSH
+tshe
 Tshi
 tshi
 Tshiluba
@@ -477068,6 +477083,7 @@ Yermo
 yern
 yertchuk
 yerth
+yeru
 yerva
 Yerwa-Maiduguri
 Yerxa
@@ -478235,6 +478251,7 @@ Z-bar
 ZBB
 ZBR
 ZD
+ze
 Zea
 zea
 zeal
@@ -478604,6 +478621,7 @@ ZG
 ZGS
 Zhang
 Zhdanov
+zhe
 Zhitomir
 Zhivkov
 Zhmud
