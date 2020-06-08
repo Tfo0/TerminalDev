@@ -470900,6 +470900,7 @@ wild-born
 wild-brained
 wild-bred
 wildcard
+wildcards
 wildcat
 wildcats
 wildcatted
