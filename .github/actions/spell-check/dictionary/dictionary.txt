@@ -76036,6 +76036,7 @@ Clichy
 Clichy-la-Garenne
 click
 click-clack
+clickable
 clicked
 clicker
 clickers
@@ -186987,6 +186988,8 @@ hyperleucocytosis
 hyperleucocytotic
 hyperleukocytosis
 hyperlexis
+hyperlink
+hyperlinking
 hyperlipaemia
 hyperlipaemic
 hyperlipemia
