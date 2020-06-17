@@ -190749,6 +190749,7 @@ Imer
 Imerina
 Imeritian
 IMF
+img
 IMHO
 imi
 imid
@@ -252147,6 +252148,7 @@ MrsSmith
 MRTS
 MRU
 Mru
+mru
 M.S.
 MS
 MS.
