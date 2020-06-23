@@ -28673,11 +28673,8 @@ attacco
 attach
 attachable
 attachableness
-attache
 attached
 attachedly
-attacher
-attachers
 attaches
 attacheship
 attaching
@@ -76036,6 +76033,7 @@ Clichy
 Clichy-la-Garenne
 click
 click-clack
+clickable
 clicked
 clicker
 clickers
@@ -186987,6 +186985,8 @@ hyperleucocytosis
 hyperleucocytotic
 hyperleukocytosis
 hyperlexis
+hyperlink
+hyperlinking
 hyperlipaemia
 hyperlipaemic
 hyperlipemia
@@ -190749,6 +190749,7 @@ Imer
 Imerina
 Imeritian
 IMF
+img
 IMHO
 imi
 imid
@@ -252147,6 +252148,7 @@ MrsSmith
 MRTS
 MRU
 Mru
+mru
 M.S.
 MS
 MS.
@@ -470900,6 +470902,7 @@ wild-born
 wild-brained
 wild-bred
 wildcard
+wildcards
 wildcat
 wildcats
 wildcatted
