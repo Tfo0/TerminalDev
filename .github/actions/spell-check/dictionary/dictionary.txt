@@ -20937,6 +20937,8 @@ apay
 Apayao
 APB
 APC
+Apc
+apc
 APDA
 APDU
 APE
@@ -383889,6 +383891,7 @@ sorus
 sorva
 sory
 SOS
+Sos
 sos
 Sosanna
 so-seeming
