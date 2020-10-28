@@ -152433,6 +152433,7 @@ ft-lb
 ftncmd
 ftnerr
 FTP
+ftp
 ft-pdl
 FTPI
 FTS
