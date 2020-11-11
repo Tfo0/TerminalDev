@@ -152433,6 +152433,7 @@ ft-lb
 ftncmd
 ftnerr
 FTP
+ftp
 ft-pdl
 FTPI
 FTS
@@ -157078,6 +157079,7 @@ geek
 geekier
 geekiest
 geeks
+geeksforgeeks
 geeky
 geelbec
 geelbeck
@@ -313155,6 +313157,7 @@ post-Mishnical
 postmistress
 postmistresses
 postmistress-ship
+postmodern
 postmortal
 post-mortem
 postmortem
@@ -345232,6 +345235,7 @@ resequester
 resequestration
 reserate
 reserene
+reserialization
 reserpine
 reserpinized
 reservable
