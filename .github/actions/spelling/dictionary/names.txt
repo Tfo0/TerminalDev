@@ -50,6 +50,7 @@ oising
 oldnewthing
 opengl
 osgwiki
+pabhojwa
 paulcam
 pauldotknopf
 PGP
@@ -62,6 +63,7 @@ Somuah
 sonph
 sonpham
 stakx
+thereses
 Walisch
 Wirt
 Wojciech

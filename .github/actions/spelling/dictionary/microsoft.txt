@@ -1,11 +1,19 @@
 ACLs
+ADMINS
 altform
+altforms
 appendwttlogging
 backplating
+bitmaps
+BOMs
+CPLs
 CPRs
 DACL
 DACLs
+diffs
+disposables
 dotnetfeed
+DTDs
 DWINRT
 enablewttlogging
 LKG
@@ -31,6 +39,7 @@ systemroot
 taskkill
 tasklist
 tdbuildteamid
+VCRT
 vcruntime
 visualstudio
 VSTHRD
@@ -39,3 +48,4 @@ wslpath
 wtl
 wtt
 wttlog
+Xamarin

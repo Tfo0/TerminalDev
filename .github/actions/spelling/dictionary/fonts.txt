@@ -1,5 +1,6 @@
 Consolas
 emoji
+emojis
 Extralight
 Gabriola
 Iosevka
