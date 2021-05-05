@@ -345242,6 +345242,8 @@ resequester
 resequestration
 reserate
 reserene
+reserialize
+reserializes
 reserialization
 reserpine
 reserpinized
