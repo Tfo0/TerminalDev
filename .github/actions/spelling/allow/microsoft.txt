@@ -3,13 +3,17 @@ ADMINS
 altform
 altforms
 appendwttlogging
+appx
+appxbundle
+appxerror
+appxmanifest
 backplating
 bitmaps
 BOMs
 CPLs
-CPRs
 cpptools
 cppvsdbg
+CPRs
 DACL
 DACLs
 diffs
@@ -38,6 +42,8 @@ robocopy
 SACLs
 Shobjidl
 Skype
+sxs
+Sysinternals
 sysnative
 systemroot
 taskkill

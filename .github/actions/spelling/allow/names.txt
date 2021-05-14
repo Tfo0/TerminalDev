@@ -13,6 +13,7 @@ ethanschoonover
 Firefox
 Gatta
 glsl
+Gravell
 Grie
 Griese
 Hernan
@@ -69,8 +70,8 @@ Wirt
 Wojciech
 zadjii
 Zamor
-zamora
 Zamora
+zamora
 Zoey
 zorio
 Zverovich

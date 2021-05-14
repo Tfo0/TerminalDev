@@ -13,7 +13,6 @@ COMDLG
 cstdint
 CXICON
 CYICON
-D2DERR_SHADER_COMPILE_FAILED
 dataobject
 dcomp
 DERR
@@ -97,7 +96,6 @@ RETURNCMD
 rfind
 roundf
 RSHIFT
-rx
 schandle
 semver
 serializer
@@ -124,7 +122,6 @@ tmp
 tolower
 TTask
 TVal
-tx
 UPDATEINIFILE
 userenv
 wcsstr

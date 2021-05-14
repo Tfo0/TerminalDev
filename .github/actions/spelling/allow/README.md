@@ -1,4 +1,4 @@
-# Dictionaries are lists of words to accept unconditionally
+# Allow files are lists of words to accept unconditionally
 
 While check spelling will complain about an expected word
 which is no longer present, you can include things here even if
@@ -8,11 +8,11 @@ E.g., you could include a list of system APIs here, or potential
 contributors (so that if a future commit includes their name,
 it'll be accepted).
 
-### Files
+## Files
 
 | File | Description |
 | ---- | ----------- |
-| [Dictionary](dictionary.txt) | Primary US English dictionary |
+| [Allow](allow.txt) | Supplements to the dictionary |
 | [Chinese](chinese.txt) | Chinese words |
 | [Japanese](japanese.txt) | Japanese words |
 | [Microsoft](microsoft.txt) | Microsoft brand items |
