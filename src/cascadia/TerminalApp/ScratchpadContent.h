@@ -13,6 +13,8 @@ namespace winrt::TerminalApp::implementation
 
         winrt::Windows::UI::Xaml::FrameworkElement GetRoot();
 
+        void UpdateSettings(const winrt::Microsoft::Terminal::Settings::Model::CascadiaSettings& settings);
+
         winrt::Windows::Foundation::Size MinimumSize();
 
         void Focus(winrt::Windows::UI::Xaml::FocusState reason = winrt::Windows::UI::Xaml::FocusState::Programmatic);
@@ -23,6 +25,9 @@ namespace winrt::TerminalApp::implementation
         uint64_t TaskbarState() { return 0; }
         uint64_t TaskbarProgress() { return 0; }
         bool ReadOnly() { return false; }
+        winrt::hstring Icon() const;
+        Windows::Foundation::IReference<winrt::Windows::UI::Color> TabColor() const noexcept { return nullptr; }
+        winrt::Windows::UI::Xaml::Media::Brush BackgroundBrush();
 
         til::typed_event<> ConnectionStateChanged;
         til::typed_event<IPaneContent> CloseRequested;
