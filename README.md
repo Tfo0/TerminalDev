@@ -1,6 +1,27 @@
 # TerminalDev
 
-Windows Terminal 自定义构建（Dev 分支，`WindowsTerminalDev` 身份，可与商店版共存）。
+基于 Windows Terminal 源码的自定义构建（Dev 分支，`WindowsTerminalDev` 身份，可与商店版共存）。
+
+## 特性
+
+- **类似 Edge 的竖状标签栏**：新增窗口级主题属性 `tabPosition`（`top` / `bottom` / `left` / `right`），设为 `left` 即可让标签栏像 Edge 垂直标签页一样竖排显示在窗口左侧
+- **配置文件分层结构**：沿用 WT 的分层配置体系（`defaults.json` → `settings.json` → `profiles.defaults` → 各 profile）；`tabPosition` 位于 theme 层，随主题整体切换，不污染全局设置
+
+## 启用竖状标签栏
+
+在 `settings.json` 中定义一个 theme 并启用：
+
+```json
+"themes": [
+    {
+        "name": "vertical",
+        "window": { "tabPosition": "left" }
+    }
+],
+"theme": "vertical"
+```
+
+想恢复顶部标签栏，把 `theme` 换回默认主题即可。
 
 ## 安装到其他 Windows 机器
 
