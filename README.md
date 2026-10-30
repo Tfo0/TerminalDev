@@ -7,6 +7,19 @@
 - **类似 Edge 的竖状标签栏**：新增窗口级主题属性 `tabPosition`（`top` / `bottom` / `left` / `right`），设为 `left` 即可让标签栏像 Edge 垂直标签页一样竖排显示在窗口左侧
 - **配置文件分层结构**：沿用 WT 的分层配置体系（`defaults.json` → `settings.json` → `profiles.defaults` → 各 profile）；`tabPosition` 位于 theme 层，随主题整体切换，不污染全局设置
 
+## 效果展示 | 类似edge侧边栏
+1. 平时隐藏在侧边栏
+<img width="2545" height="1516" alt="image" src="https://github.com/user-attachments/assets/1e46d3f2-2bc8-4fa3-b611-8d64c45892b8" />
+
+2. 悬浮时自动展开
+<img width="2559" height="1512" alt="image" src="https://github.com/user-attachments/assets/720e0b6e-ea99-45d6-9d52-88371134e592" />
+
+3. 可直接新建客户端agent
+<img width="2555" height="1512" alt="image" src="https://github.com/user-attachments/assets/05a399a3-07a8-4aef-b18d-222cd7b32ad9" />
+
+
+
+
 ## 启用竖状标签栏
 
 在 `settings.json` 中定义一个 theme 并启用：
