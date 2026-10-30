@@ -23,28 +23,46 @@
 
 想恢复顶部标签栏，把 `theme` 换回默认主题即可。
 
-## 安装到其他 Windows 机器
+## 安装方式 A：免管理员（推荐，域用户/无权限机器可用）
 
-要求：Windows 10 2004 (19041) 及以上，x64。
+适用于没有管理员权限的普通用户（如域账号）。
 
-1. 从 [Releases](../../releases) 下载 `WindowsTerminalDev-0.0.1.0-x64.zip` 并解压
-2. 右键 `Install.ps1` → 使用 PowerShell 运行（需管理员权限）
+1. 下载 `WindowsTerminalDev-0.0.1.0-x64-noadmin.zip` 并解压
+2. 在 PowerShell 中执行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Install-NoAdmin.ps1
+```
+
+脚本会把程序复制到 `%LOCALAPPDATA%\Programs\TerminalDev` 并为当前用户注册（散包注册，**不需要证书、不需要管理员权限**）。
+
+注意：
+- 安装后**不要删除或移动** `%LOCALAPPDATA%\Programs\TerminalDev` 文件夹，程序从该位置运行
+- 若公司域策略禁用了"旁加载应用"，此方式会被组策略拦截，只能联系域管理员放行
+- 卸载：运行 `Uninstall.ps1`
+
+## 安装方式 B：MSIX 安装包（有管理员权限的机器）
+
+要求：Windows 10 1809 (17763) 及以上，x64。
+
+1. 下载 `WindowsTerminalDev-0.0.1.0-x64.zip` 并解压
+2. 右键 `Install.ps1` → 使用 PowerShell 运行（需管理员权限，用于信任签名证书）
    - 或在管理员 PowerShell 中执行：`powershell -ExecutionPolicy Bypass -File Install.ps1`
 3. 脚本会自动完成：信任签名证书 → 安装 WinUI 依赖 → 安装 MSIX
 
-安装完成后在开始菜单找到 **Windows Terminal (Dev Build)**。
-
-## 手动安装
+手动安装：
 
 ```powershell
 # 管理员 PowerShell
 Import-Certificate -FilePath .\TerminalDev.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
 Add-AppxPackage .\Microsoft.UI.Xaml.2.8.appx
-Add-AppxPackage .\WindowsTerminalDev_0.0.1.0_x64.msix
+Add-AppxPackage .\WindowsTerminalDev_0.0.1.0_x64.msixbundle
 ```
 
-## 卸载
+卸载：
 
 ```powershell
 Get-AppxPackage WindowsTerminalDev | Remove-AppxPackage
 ```
+
+安装完成后在开始菜单找到 **Windows Terminal (Dev Build)**。
