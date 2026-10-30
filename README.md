@@ -27,7 +27,7 @@
 
 适用于没有管理员权限、但域策略未限制旁加载的普通用户。
 
-1. 下载 `WindowsTerminalDev-0.0.1.8-x64-noadmin.zip` 并解压
+1. 下载 `WindowsTerminalDev-0.0.1.9-x64-noadmin.zip` 并解压
 2. 在 PowerShell 中执行：
 
 ```powershell
@@ -45,7 +45,7 @@ powershell -ExecutionPolicy Bypass -File .\Install-NoAdmin.ps1
 
 要求：Windows 10 1809 (17763) 及以上，x64。
 
-1. 下载 `WindowsTerminalDev-0.0.1.8-x64.zip` 并解压
+1. 下载 `WindowsTerminalDev-0.0.1.9-x64.zip` 并解压
 2. 右键 `Install.ps1` → 使用 PowerShell 运行（需管理员权限，用于信任签名证书）
    - 或在管理员 PowerShell 中执行：`powershell -ExecutionPolicy Bypass -File Install.ps1`
 3. 脚本会自动完成：信任签名证书 → 安装 WinUI 依赖 → 安装 MSIX
@@ -56,7 +56,7 @@ powershell -ExecutionPolicy Bypass -File .\Install-NoAdmin.ps1
 # 管理员 PowerShell
 Import-Certificate -FilePath .\TerminalDev.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
 Add-AppxPackage .\Microsoft.UI.Xaml.2.8.appx
-Add-AppxPackage .\WindowsTerminalDev_0.0.1.8_x64.msixbundle
+Add-AppxPackage .\WindowsTerminalDev_0.0.1.9_x64.msixbundle
 ```
 
 卸载：
@@ -71,6 +71,6 @@ Get-AppxPackage WindowsTerminalDev | Remove-AppxPackage
 
 1. **信任签名证书**：组策略 → 计算机配置 → Windows 设置 → 安全设置 → 公钥策略 → 「受信任的根证书颁发机构」（或「受信任人」）→ 导入 Release 包中的 `TerminalDev.cer`
 2. **允许受信任应用安装**：组策略 → 计算机配置 → 管理模板 → Windows 组件 → 应用包部署 → 「允许安装所有受信任的应用」设为"已启用"（或「允许开发 Windows 应用商店应用并从集成开发环境(IDE)安装这些应用」启用旁加载）
-3. 策略下发后，普通用户无需管理员即可双击安装 `WindowsTerminalDev_0.0.1.8_x64.msixbundle`，或运行方式 B 的 `Install.ps1`（去掉管理员需求）
+3. 策略下发后，普通用户无需管理员即可双击安装 `WindowsTerminalDev_0.0.1.9_x64.msixbundle`，或运行方式 B 的 `Install.ps1`（去掉管理员需求）
 
 安装完成后在开始菜单找到 **Windows Terminal (Dev Build)**。
