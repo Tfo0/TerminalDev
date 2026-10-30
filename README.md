@@ -23,9 +23,9 @@
 
 想恢复顶部标签栏，把 `theme` 换回默认主题即可。
 
-## 安装方式 A：免管理员（推荐，域用户/无权限机器可用）
+## 安装方式 A：免管理员（无管理员权限且域策略未禁用旁加载的机器）
 
-适用于没有管理员权限的普通用户（如域账号）。
+适用于没有管理员权限、但域策略未限制旁加载的普通用户。
 
 1. 下载 `WindowsTerminalDev-0.0.1.0-x64-noadmin.zip` 并解压
 2. 在 PowerShell 中执行：
@@ -38,7 +38,7 @@ powershell -ExecutionPolicy Bypass -File .\Install-NoAdmin.ps1
 
 注意：
 - 安装后**不要删除或移动** `%LOCALAPPDATA%\Programs\TerminalDev` 文件夹，程序从该位置运行
-- 若公司域策略禁用了"旁加载应用"，此方式会被组策略拦截，只能联系域管理员放行
+- 若报错 `0x80073CFF`（需要开发者许可证或启用旁加载的系统），说明域策略禁用了旁加载 → 见下方"域策略受限机器"
 - 卸载：运行 `Uninstall.ps1`
 
 ## 安装方式 B：MSIX 安装包（有管理员权限的机器）
@@ -64,5 +64,13 @@ Add-AppxPackage .\WindowsTerminalDev_0.0.1.0_x64.msixbundle
 ```powershell
 Get-AppxPackage WindowsTerminalDev | Remove-AppxPackage
 ```
+
+## 域策略受限机器（报 0x80073CFF / 无管理员权限）
+
+散包注册和证书信任都被锁时，本机用户态无解，需要域管理员做一次 GPO 配置（全公司机器一次到位，之后普通用户即可自行安装）：
+
+1. **信任签名证书**：组策略 → 计算机配置 → Windows 设置 → 安全设置 → 公钥策略 → 「受信任的根证书颁发机构」（或「受信任人」）→ 导入 Release 包中的 `TerminalDev.cer`
+2. **允许受信任应用安装**：组策略 → 计算机配置 → 管理模板 → Windows 组件 → 应用包部署 → 「允许安装所有受信任的应用」设为"已启用"（或「允许开发 Windows 应用商店应用并从集成开发环境(IDE)安装这些应用」启用旁加载）
+3. 策略下发后，普通用户无需管理员即可双击安装 `WindowsTerminalDev_0.0.1.0_x64.msixbundle`，或运行方式 B 的 `Install.ps1`（去掉管理员需求）
 
 安装完成后在开始菜单找到 **Windows Terminal (Dev Build)**。
