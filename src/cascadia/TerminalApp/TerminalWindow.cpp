@@ -1215,6 +1215,14 @@ namespace winrt::TerminalApp::implementation
         }
     }
 
+    void TerminalWindow::ShowWindowSwitcher(const Windows::Foundation::Collections::IVector<winrt::TerminalApp::WindowPaletteItem>& windows)
+    {
+        if (_root)
+        {
+            _root->ShowWindowSwitcher(windows);
+        }
+    }
+
     void TerminalWindow::WindowName(const winrt::hstring& name)
     {
         const auto oldIsQuakeMode = _WindowProperties->IsQuakeWindow();

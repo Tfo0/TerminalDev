@@ -595,6 +595,19 @@
   <data name="TabSwitcher_NoMatchesText" xml:space="preserve">
     <value>No matching tab name</value>
   </data>
+  <data name="CommandPaletteModeAnnouncement_WindowSwitchMode" xml:space="preserve">
+    <value>Window switcher mode</value>
+    <comment>This text will be read aloud using assistive technologies when the command palette switches into window switching mode.</comment>
+  </data>
+  <data name="WindowSwitcherControlName" xml:space="preserve">
+    <value>Window switcher</value>
+  </data>
+  <data name="WindowSwitcher_SearchBoxText" xml:space="preserve">
+    <value>Type a window title...</value>
+  </data>
+  <data name="WindowSwitcher_NoMatchesText" xml:space="preserve">
+    <value>No matching window</value>
+  </data>
   <data name="CmdPalCommandlinePrompt" xml:space="preserve">
     <value>Enter a wt commandline to run</value>
     <comment>{Locked="wt"} </comment>

@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 import "TaskbarState.idl";
 import "Remoting.idl";
+import "IPaletteItem.idl";
 
 namespace TerminalApp
 {
@@ -64,6 +65,7 @@ namespace TerminalApp
 
         WindowProperties WindowProperties { get; };
         void IdentifyWindow();
+        void ShowWindowSwitcher(Windows.Foundation.Collections.IVector<WindowPaletteItem> windows);
 
         String SavedActionName { get; };
         String SavedActionKeyChord { get; };
@@ -93,6 +95,8 @@ namespace TerminalApp
         event Windows.Foundation.TypedEventHandler<Object, Object> IdentifyWindowsRequested;
         event Windows.Foundation.TypedEventHandler<Object, RenameWindowRequestedArgs> RenameWindowRequested;
         event Windows.Foundation.TypedEventHandler<Object, Object> SummonWindowRequested;
+        event Windows.Foundation.TypedEventHandler<Object, Object> ShowWindowSwitcherRequested;
+        event Windows.Foundation.TypedEventHandler<Object, UInt64> SummonWindowByIdRequested;
         event Windows.Foundation.TypedEventHandler<Object, Microsoft.Terminal.Control.WindowSizeChangedEventArgs> WindowSizeChanged;
 
         event Windows.Foundation.TypedEventHandler<Object, Object> OpenSystemMenu;

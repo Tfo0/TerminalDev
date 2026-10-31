@@ -5,6 +5,7 @@
 #include "Tab.h"
 
 #include "CommandPaletteItems.h"
+#include "WindowPaletteItem.g.cpp"
 
 using namespace winrt;
 using namespace winrt::TerminalApp;
@@ -44,5 +45,19 @@ namespace winrt::TerminalApp::implementation
                 BaseRaisePropertyChanged(L"TabStatus");
             });
         }
+    }
+
+    WindowPaletteItem::WindowPaletteItem(uint64_t windowId, const winrt::hstring& title, const winrt::hstring& name) :
+        _windowId{ windowId },
+        _title{ title },
+        _icon{ L"" } // TaskView glyph
+    {
+        // Display the window as "#2" or "#2 [quake]", matching the tray icon menu.
+        std::wstring subtitle{ fmt::format(L"#{}", windowId) };
+        if (!name.empty())
+        {
+            fmt::format_to(std::back_inserter(subtitle), L" [{}]", name);
+        }
+        _subtitle = winrt::hstring{ subtitle };
     }
 }

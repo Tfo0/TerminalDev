@@ -35,6 +35,8 @@ public:
     AppHost* GetWindowByName(std::wstring_view name) const noexcept;
     void CreateNewWindow(winrt::TerminalApp::WindowRequestedArgs args);
     void HandleCommandlineArgs(int nCmdShow);
+    void ShowWindowSwitcher(AppHost* requester);
+    bool SummonWindowById(uint64_t id);
 
 private:
     struct SummonWindowSelectionArgs

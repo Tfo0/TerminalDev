@@ -277,6 +277,8 @@ void AppHost::Initialize()
 
     _revokers.IsQuakeWindowChanged = _windowLogic.IsQuakeWindowChanged(winrt::auto_revoke, { this, &AppHost::_IsQuakeWindowChanged });
     _revokers.SummonWindowRequested = _windowLogic.SummonWindowRequested(winrt::auto_revoke, { this, &AppHost::_SummonWindowRequested });
+    _revokers.ShowWindowSwitcherRequested = _windowLogic.ShowWindowSwitcherRequested(winrt::auto_revoke, { this, &AppHost::_ShowWindowSwitcherRequested });
+    _revokers.SummonWindowByIdRequested = _windowLogic.SummonWindowByIdRequested(winrt::auto_revoke, { this, &AppHost::_SummonWindowByIdRequested });
     _revokers.OpenSystemMenu = _windowLogic.OpenSystemMenu(winrt::auto_revoke, { this, &AppHost::_OpenSystemMenu });
     _revokers.QuitRequested = _windowLogic.QuitRequested(winrt::auto_revoke, { this, &AppHost::_RequestQuitAll });
     _revokers.ShowWindowChanged = _windowLogic.ShowWindowChanged(winrt::auto_revoke, { this, &AppHost::_ShowWindowChanged });
@@ -1074,6 +1076,25 @@ void AppHost::_SummonWindowRequested(const winrt::Windows::Foundation::IInspecta
     summonArgs.ToMonitor(winrt::TerminalApp::MonitorBehavior::InPlace);
     summonArgs.ToggleVisibility(false); // Do not toggle, just make visible.
     HandleSummon(std::move(summonArgs));
+}
+
+// Method Description:
+// - Called when this window wants to display the window switcher. The window
+//   manager knows about all the other windows; it'll build the list and call
+//   back into our logic to actually show the switcher UI.
+void AppHost::_ShowWindowSwitcherRequested(const winrt::Windows::Foundation::IInspectable&,
+                                           const winrt::Windows::Foundation::IInspectable&)
+{
+    _windowManager->ShowWindowSwitcher(this);
+}
+
+// Method Description:
+// - Called when the user picked a window in the window switcher. Ask the
+//   window manager to bring that window to the foreground.
+void AppHost::_SummonWindowByIdRequested(const winrt::Windows::Foundation::IInspectable&,
+                                         const uint64_t& windowId)
+{
+    _windowManager->SummonWindowById(windowId);
 }
 
 void AppHost::_OpenSystemMenu(const winrt::Windows::Foundation::IInspectable&,

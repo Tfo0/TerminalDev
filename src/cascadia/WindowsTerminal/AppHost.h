@@ -91,6 +91,12 @@ private:
     void _SummonWindowRequested(const winrt::Windows::Foundation::IInspectable& sender,
                                 const winrt::Windows::Foundation::IInspectable& args);
 
+    void _ShowWindowSwitcherRequested(const winrt::Windows::Foundation::IInspectable& sender,
+                                      const winrt::Windows::Foundation::IInspectable& args);
+
+    void _SummonWindowByIdRequested(const winrt::Windows::Foundation::IInspectable& sender,
+                                    const uint64_t& windowId);
+
     void _OpenSystemMenu(const winrt::Windows::Foundation::IInspectable& sender,
                          const winrt::Windows::Foundation::IInspectable& args);
 
@@ -151,6 +157,8 @@ private:
         winrt::TerminalApp::TerminalWindow::IdentifyWindowsRequested_revoker IdentifyWindowsRequested;
         winrt::TerminalApp::TerminalWindow::IsQuakeWindowChanged_revoker IsQuakeWindowChanged;
         winrt::TerminalApp::TerminalWindow::SummonWindowRequested_revoker SummonWindowRequested;
+        winrt::TerminalApp::TerminalWindow::ShowWindowSwitcherRequested_revoker ShowWindowSwitcherRequested;
+        winrt::TerminalApp::TerminalWindow::SummonWindowByIdRequested_revoker SummonWindowByIdRequested;
         winrt::TerminalApp::TerminalWindow::OpenSystemMenu_revoker OpenSystemMenu;
         winrt::TerminalApp::TerminalWindow::QuitRequested_revoker QuitRequested;
         winrt::TerminalApp::TerminalWindow::ShowWindowChanged_revoker ShowWindowChanged;

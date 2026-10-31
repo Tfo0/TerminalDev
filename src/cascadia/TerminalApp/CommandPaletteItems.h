@@ -5,6 +5,7 @@
 
 #include "BasePaletteItem.h"
 #include "TabPaletteItem.g.h"
+#include "WindowPaletteItem.g.h"
 
 #include "../inc/cppwinrt_utils.h"
 
@@ -156,4 +157,47 @@ namespace winrt::TerminalApp::implementation
         Windows::UI::Xaml::Data::INotifyPropertyChanged::PropertyChanged_revoker _tabChangedRevoker;
         Windows::UI::Xaml::Data::INotifyPropertyChanged::PropertyChanged_revoker _tabStatusChangedRevoker;
     };
+
+    struct WindowPaletteItem :
+        public WindowPaletteItemT<WindowPaletteItem>,
+        BasePaletteItem<WindowPaletteItem, winrt::TerminalApp::PaletteItemType::Window>
+    {
+        WindowPaletteItem(uint64_t windowId, const winrt::hstring& title, const winrt::hstring& name);
+
+        uint64_t WindowId() const noexcept
+        {
+            return _windowId;
+        }
+
+        winrt::hstring Name()
+        {
+            return _title;
+        }
+
+        winrt::hstring Subtitle()
+        {
+            return _subtitle;
+        }
+
+        winrt::hstring KeyChordText()
+        {
+            return {};
+        }
+
+        winrt::hstring Icon()
+        {
+            return _icon;
+        }
+
+    private:
+        uint64_t _windowId;
+        winrt::hstring _title;
+        winrt::hstring _subtitle;
+        winrt::hstring _icon;
+    };
+}
+
+namespace winrt::TerminalApp::factory_implementation
+{
+    BASIC_FACTORY(WindowPaletteItem);
 }

@@ -176,6 +176,8 @@ namespace winrt::TerminalApp::implementation
         void AttachContent(Windows::Foundation::Collections::IVector<Microsoft::Terminal::Settings::Model::ActionAndArgs> args, uint32_t tabIndex);
         void SendContentToOther(winrt::TerminalApp::RequestReceiveContentArgs args);
 
+        void ShowWindowSwitcher(const Windows::Foundation::Collections::IVector<winrt::TerminalApp::WindowPaletteItem>& windows);
+
         uint32_t NumberOfTabs() const;
 
         til::property_changed_event PropertyChanged;
@@ -194,6 +196,8 @@ namespace winrt::TerminalApp::implementation
         til::typed_event<IInspectable, IInspectable> IdentifyWindowsRequested;
         til::typed_event<IInspectable, winrt::TerminalApp::RenameWindowRequestedArgs> RenameWindowRequested;
         til::typed_event<IInspectable, IInspectable> SummonWindowRequested;
+        til::typed_event<IInspectable, IInspectable> ShowWindowSwitcherRequested;
+        til::typed_event<IInspectable, uint64_t> SummonWindowByIdRequested;
         til::typed_event<IInspectable, winrt::Microsoft::Terminal::Control::WindowSizeChangedEventArgs> WindowSizeChanged;
 
         til::typed_event<IInspectable, IInspectable> OpenSystemMenu;
@@ -479,6 +483,7 @@ namespace winrt::TerminalApp::implementation
         void _OnDispatchCommandRequested(const IInspectable& sender, const Microsoft::Terminal::Settings::Model::Command& command);
         void _OnCommandLineExecutionRequested(const IInspectable& sender, const winrt::hstring& commandLine);
         void _OnSwitchToTabRequested(const IInspectable& sender, const winrt::TerminalApp::Tab& tab);
+        void _OnSwitchToWindowRequested(const IInspectable& sender, const uint64_t windowId);
 
         void _Find(const Tab& tab);
 

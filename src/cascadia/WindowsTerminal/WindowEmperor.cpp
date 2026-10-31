@@ -313,6 +313,60 @@ AppHost* WindowEmperor::_mostRecentWindow() const noexcept
     return mostRecent;
 }
 
+// Method Description:
+// - Builds the list of all windows in MRU order and asks the requesting window
+//   to display the window switcher UI with it.
+// Arguments:
+// - requester: the window that wants to show the window switcher
+void WindowEmperor::ShowWindowSwitcher(AppHost* requester)
+{
+    _assertIsMainThread();
+
+    if (!requester)
+    {
+        return;
+    }
+
+    std::vector<AppHost*> mruWindows;
+    mruWindows.reserve(_windows.size());
+    for (const auto& host : _windows)
+    {
+        mruWindows.emplace_back(host.get());
+    }
+    std::sort(mruWindows.begin(), mruWindows.end(), [](const AppHost* a, const AppHost* b) {
+        return a->GetLastActivatedTime() > b->GetLastActivatedTime();
+    });
+
+    auto items = winrt::single_threaded_vector<winrt::TerminalApp::WindowPaletteItem>();
+    for (const auto& host : mruWindows)
+    {
+        const auto logic = host->Logic();
+        const auto props = logic.WindowProperties();
+        items.Append(winrt::TerminalApp::WindowPaletteItem{ props.WindowId(), logic.Title(), props.WindowName() });
+    }
+
+    requester->Logic().ShowWindowSwitcher(items);
+}
+
+// Method Description:
+// - Brings the window with the given ID to the foreground, moving it to the
+//   current virtual desktop. Used by the window switcher.
+// Return Value:
+// - true if a matching window was found and summoned
+bool WindowEmperor::SummonWindowById(uint64_t id)
+{
+    _assertIsMainThread();
+
+    SummonWindowSelectionArgs args;
+    args.WindowID = id;
+    args.SummonBehavior.MoveToCurrentDesktop(true);
+    args.SummonBehavior.ToggleVisibility(false); // Don't hide it if it was focused; just raise it.
+    args.SummonBehavior.DropdownDuration(0);
+    args.SummonBehavior.ToMonitor(TerminalApp::MonitorBehavior::InPlace);
+
+    return _summonWindow(args);
+}
+
 void WindowEmperor::HandleCommandlineArgs(int nCmdShow)
 {
     std::wstring windowClassName;

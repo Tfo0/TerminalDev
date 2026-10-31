@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import "Tab.idl";
+import "IPaletteItem.idl";
 import "HighlightedTextControl.idl";
 import "FilteredCommand.idl";
 
@@ -21,6 +22,7 @@ namespace TerminalApp
         Windows.Foundation.Collections.IObservableVector<FilteredCommand> FilteredActions { get; };
 
         void SetTabs(Windows.Foundation.Collections.IObservableVector<Tab> tabs, Windows.Foundation.Collections.IObservableVector<Tab> mruTabs);
+        void SetWindows(Windows.Foundation.Collections.IVector<WindowPaletteItem> windows);
 
         void SetActionMap(Microsoft.Terminal.Settings.Model.IActionMapView actionMap);
 
@@ -28,9 +30,11 @@ namespace TerminalApp
 
         void EnableCommandPaletteMode(Microsoft.Terminal.Settings.Model.CommandPaletteLaunchMode launchMode);
         void EnableTabSwitcherMode(UInt32 startIdx, Microsoft.Terminal.Settings.Model.TabSwitcherMode tabSwitcherMode);
+        void EnableWindowSwitcherMode();
         void EnableTabSearchMode();
 
         event Windows.Foundation.TypedEventHandler<CommandPalette, Tab> SwitchToTabRequested;
+        event Windows.Foundation.TypedEventHandler<CommandPalette, UInt64> SwitchToWindowRequested;
         event Windows.Foundation.TypedEventHandler<CommandPalette, Microsoft.Terminal.Settings.Model.Command> DispatchCommandRequested;
         event Windows.Foundation.TypedEventHandler<CommandPalette, String> CommandLineExecutionRequested;
         event Windows.Foundation.TypedEventHandler<Object, Microsoft.Terminal.Settings.Model.Command> PreviewAction;

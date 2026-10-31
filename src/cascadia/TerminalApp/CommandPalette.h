@@ -22,6 +22,7 @@ namespace winrt::TerminalApp::implementation
         ActionMode = 0,
         TabSearchMode,
         TabSwitchMode,
+        WindowSwitchMode,
         CommandlineMode
     };
 
@@ -32,6 +33,7 @@ namespace winrt::TerminalApp::implementation
         Windows::Foundation::Collections::IObservableVector<winrt::TerminalApp::FilteredCommand> FilteredActions();
 
         void SetTabs(const Windows::Foundation::Collections::IObservableVector<winrt::TerminalApp::Tab>& tabs, const Windows::Foundation::Collections::IObservableVector<winrt::TerminalApp::Tab>& mruTabs);
+        void SetWindows(const Windows::Foundation::Collections::IVector<winrt::TerminalApp::WindowPaletteItem>& windows);
         void SetActionMap(const Microsoft::Terminal::Settings::Model::IActionMapView& actionMap);
 
         bool OnDirectKeyEvent(const uint32_t vkey, const uint8_t scanCode, const bool down);
@@ -45,10 +47,12 @@ namespace winrt::TerminalApp::implementation
 
         void EnableCommandPaletteMode(Microsoft::Terminal::Settings::Model::CommandPaletteLaunchMode const launchMode);
         void EnableTabSwitcherMode(const uint32_t startIdx, Microsoft::Terminal::Settings::Model::TabSwitcherMode tabSwitcherMode);
+        void EnableWindowSwitcherMode();
         void EnableTabSearchMode();
 
         til::property_changed_event PropertyChanged;
         til::typed_event<winrt::TerminalApp::CommandPalette, winrt::TerminalApp::Tab> SwitchToTabRequested;
+        til::typed_event<winrt::TerminalApp::CommandPalette, uint64_t> SwitchToWindowRequested;
         til::typed_event<winrt::TerminalApp::CommandPalette, winrt::hstring> CommandLineExecutionRequested;
         til::typed_event<winrt::TerminalApp::CommandPalette, Microsoft::Terminal::Settings::Model::Command> DispatchCommandRequested;
         til::typed_event<Windows::Foundation::IInspectable, Microsoft::Terminal::Settings::Model::Command> PreviewAction;
@@ -135,6 +139,9 @@ namespace winrt::TerminalApp::implementation
         Microsoft::Terminal::Settings::Model::TabSwitcherMode _tabSwitcherMode;
         uint32_t _switcherStartIdx;
 
+        // Window Switcher
+        Windows::Foundation::Collections::IVector<winrt::TerminalApp::FilteredCommand> _windowActions{ nullptr };
+
         void _bindTabs(const Windows::Foundation::Collections::IObservableVector<winrt::TerminalApp::Tab>& source, const Windows::Foundation::Collections::IVector<winrt::TerminalApp::FilteredCommand>& target);
         void _anchorKeyUpHandler();
 
@@ -143,6 +150,7 @@ namespace winrt::TerminalApp::implementation
         void _dispatchCommand(const winrt::TerminalApp::FilteredCommand& command);
         void _dispatchCommandline(const winrt::TerminalApp::FilteredCommand& command);
         void _switchToTab(const winrt::TerminalApp::FilteredCommand& command);
+        void _switchToWindow(const winrt::TerminalApp::FilteredCommand& command);
         static std::optional<winrt::TerminalApp::FilteredCommand> _buildCommandLineCommand(const winrt::hstring& commandLine);
 
         void _dismissPalette();

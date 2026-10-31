@@ -591,6 +591,19 @@
   <data name="TabSwitcher_NoMatchesText" xml:space="preserve">
     <value>无匹配的选项卡名称</value>
   </data>
+  <data name="CommandPaletteModeAnnouncement_WindowSwitchMode" xml:space="preserve">
+    <value>窗口切换器模式</value>
+    <comment>This text will be read aloud using assistive technologies when the command palette switches into window switching mode.</comment>
+  </data>
+  <data name="WindowSwitcherControlName" xml:space="preserve">
+    <value>窗口切换器</value>
+  </data>
+  <data name="WindowSwitcher_SearchBoxText" xml:space="preserve">
+    <value>输入窗口标题...</value>
+  </data>
+  <data name="WindowSwitcher_NoMatchesText" xml:space="preserve">
+    <value>无匹配的窗口</value>
+  </data>
   <data name="CmdPalCommandlinePrompt" xml:space="preserve">
     <value>输入要运行的 wt 命令行</value>
     <comment>{Locked="wt"} </comment>

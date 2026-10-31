@@ -2556,6 +2556,7 @@ namespace winrt::TerminalApp::implementation
         p.DispatchCommandRequested({ this, &TerminalPage::_OnDispatchCommandRequested });
         p.CommandLineExecutionRequested({ this, &TerminalPage::_OnCommandLineExecutionRequested });
         p.SwitchToTabRequested({ this, &TerminalPage::_OnSwitchToTabRequested });
+        p.SwitchToWindowRequested({ this, &TerminalPage::_OnSwitchToWindowRequested });
         p.PreviewAction({ this, &TerminalPage::_PreviewActionHandler });
 
         return p;

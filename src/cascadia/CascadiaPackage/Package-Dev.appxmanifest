@@ -18,12 +18,12 @@
   IgnorableNamespaces="uap mp rescap uap3 uap17 desktop6 virtualization">
 
   <Identity
-    Name="WindowsTerminalDev"
+    Name="WindowsTerminalDev.WindowSwitcher"
     Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-    Version="0.0.1.9" />
+    Version="0.0.2.0" />
 
   <Properties>
-    <DisplayName>ms-resource:AppStoreNameDev</DisplayName>
+    <DisplayName>Windows Terminal Dev (WindowSwitcher)</DisplayName>
     <PublisherDisplayName>A Lone Developer</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
     <!-- Older versions of Windows 10 respect this -->
@@ -51,7 +51,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="ms-resource:AppNameDev"
+        DisplayName="Terminal Dev (WindowSwitcher)"
         Description="ms-resource:AppDescriptionDev"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"

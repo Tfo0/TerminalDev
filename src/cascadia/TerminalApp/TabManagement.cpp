@@ -635,6 +635,37 @@ namespace winrt::TerminalApp::implementation
     }
 
     // Method Description:
+    // - Displays the window switcher UI (the command palette in window switch
+    //   mode), listing the windows handed to us by the app host in MRU order.
+    //   The previously-used window is pre-selected, so tapping the bound chord
+    //   once and releasing it immediately switches to it, Alt+Tab style.
+    // Arguments:
+    // - windows - all terminal windows, in most-recently-used order
+    // Return Value:
+    // - <none>
+    void TerminalPage::ShowWindowSwitcher(const Windows::Foundation::Collections::IVector<winrt::TerminalApp::WindowPaletteItem>& windows)
+    {
+        const auto p = LoadCommandPalette();
+        p.SetWindows(windows);
+        p.EnableWindowSwitcherMode();
+        p.Visibility(Visibility::Visible);
+        p.SelectNextItem(true);
+    }
+
+    // Method Description:
+    // - Called when a window was selected in the window switcher. We don't know
+    //   how to bring another window to the foreground ourselves, so we bubble
+    //   the request up to the app host (and from there, the window manager).
+    // Arguments:
+    // - windowId - ID of the window to switch to
+    // Return Value:
+    // - <none>
+    void TerminalPage::_OnSwitchToWindowRequested(const IInspectable& /*sender*/, const uint64_t windowId)
+    {
+        SummonWindowByIdRequested.raise(*this, windowId);
+    }
+
+    // Method Description:
     // - Returns the index in our list of tabs of the currently focused tab. If
     //      no tab is currently selected, returns nullopt.
     // Return Value:

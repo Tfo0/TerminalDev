@@ -740,6 +740,9 @@
   <data name="OpenCWDCommandKey" xml:space="preserve">
     <value>打开当前工作目录</value>
   </data>
+  <data name="ShowWindowSwitcherCommandKey" xml:space="preserve">
+    <value>显示窗口切换器</value>
+  </data>
   <data name="CloseTab" xml:space="preserve">
     <value>关闭标签页</value>
   </data>

@@ -92,6 +92,7 @@ namespace winrt::TerminalApp::implementation
         bool ShowTabsFullscreen() const;
         bool AutoHideWindow();
         void IdentifyWindow();
+        void ShowWindowSwitcher(const Windows::Foundation::Collections::IVector<winrt::TerminalApp::WindowPaletteItem>& windows);
 
         std::optional<uint32_t> LoadPersistedLayoutIdx() const;
         winrt::Microsoft::Terminal::Settings::Model::WindowLayout LoadPersistedLayout();
@@ -222,6 +223,8 @@ namespace winrt::TerminalApp::implementation
         FORWARDED_TYPED_EVENT(SetTaskbarProgress, winrt::Windows::Foundation::IInspectable, winrt::Windows::Foundation::IInspectable, _root, SetTaskbarProgress);
         FORWARDED_TYPED_EVENT(IdentifyWindowsRequested, Windows::Foundation::IInspectable, Windows::Foundation::IInspectable, _root, IdentifyWindowsRequested);
         FORWARDED_TYPED_EVENT(SummonWindowRequested, Windows::Foundation::IInspectable, Windows::Foundation::IInspectable, _root, SummonWindowRequested);
+        FORWARDED_TYPED_EVENT(ShowWindowSwitcherRequested, Windows::Foundation::IInspectable, Windows::Foundation::IInspectable, _root, ShowWindowSwitcherRequested);
+        FORWARDED_TYPED_EVENT(SummonWindowByIdRequested, Windows::Foundation::IInspectable, uint64_t, _root, SummonWindowByIdRequested);
         FORWARDED_TYPED_EVENT(OpenSystemMenu, Windows::Foundation::IInspectable, Windows::Foundation::IInspectable, _root, OpenSystemMenu);
         FORWARDED_TYPED_EVENT(QuitRequested, Windows::Foundation::IInspectable, Windows::Foundation::IInspectable, _root, QuitRequested);
         FORWARDED_TYPED_EVENT(ShowWindowChanged, Windows::Foundation::IInspectable, winrt::Microsoft::Terminal::Control::ShowWindowArgs, _root, ShowWindowChanged);

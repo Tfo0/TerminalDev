@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import "IPaneContent.idl";
+import "IPaletteItem.idl";
 import "TerminalPage.idl";
 import "ShortcutActionDispatch.idl";
 
@@ -96,6 +97,7 @@ namespace TerminalApp
         Windows.UI.Xaml.Media.Brush TitlebarBrush { get; };
         Windows.UI.Xaml.Media.Brush FrameBrush { get; };
         void WindowActivated(Boolean activated);
+        void ShowWindowSwitcher(Windows.Foundation.Collections.IVector<WindowPaletteItem> windows);
 
         Boolean GetMinimizeToNotificationArea();
         Boolean GetAlwaysShowNotificationIcon();
@@ -127,6 +129,8 @@ namespace TerminalApp
         event Windows.Foundation.TypedEventHandler<Object, Object> IdentifyWindowsRequested;
         event Windows.Foundation.TypedEventHandler<Object, Object> IsQuakeWindowChanged;
         event Windows.Foundation.TypedEventHandler<Object, Object> SummonWindowRequested;
+        event Windows.Foundation.TypedEventHandler<Object, Object> ShowWindowSwitcherRequested;
+        event Windows.Foundation.TypedEventHandler<Object, UInt64> SummonWindowByIdRequested;
         event Windows.Foundation.TypedEventHandler<Object, Object> OpenSystemMenu;
         event Windows.Foundation.TypedEventHandler<Object, Object> QuitRequested;
         event Windows.Foundation.TypedEventHandler<Object, TerminalApp.SystemMenuChangeArgs> SystemMenuChangeRequested;

@@ -740,6 +740,9 @@
   <data name="OpenCWDCommandKey" xml:space="preserve">
     <value>Open current working directory</value>
   </data>
+  <data name="ShowWindowSwitcherCommandKey" xml:space="preserve">
+    <value>Show window switcher</value>
+  </data>
   <data name="CloseTab" xml:space="preserve">
     <value>Close tab</value>
   </data>

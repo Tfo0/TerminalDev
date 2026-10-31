@@ -33,6 +33,7 @@ namespace winrt::TerminalApp::implementation
         _allCommands = winrt::single_threaded_vector<winrt::TerminalApp::FilteredCommand>();
         _tabActions = winrt::single_threaded_vector<winrt::TerminalApp::FilteredCommand>();
         _mruTabActions = winrt::single_threaded_vector<winrt::TerminalApp::FilteredCommand>();
+        _windowActions = winrt::single_threaded_vector<winrt::TerminalApp::FilteredCommand>();
 
         _switchToMode(CommandPaletteMode::ActionMode);
 
@@ -44,7 +45,7 @@ namespace winrt::TerminalApp::implementation
                 // Force immediate binding update so we can select an item
                 Bindings->Update();
 
-                if (_currentMode == CommandPaletteMode::TabSwitchMode)
+                if (_currentMode == CommandPaletteMode::TabSwitchMode || _currentMode == CommandPaletteMode::WindowSwitchMode)
                 {
                     _searchBox().Visibility(Visibility::Collapsed);
                     _filteredActionsView().SelectedIndex(_switcherStartIdx);
@@ -82,7 +83,7 @@ namespace winrt::TerminalApp::implementation
         // when the ListView has been measured out and is ready, and we'll immediately
         // revoke the handler because we only needed to handle it once on initialization.
         _sizeChangedRevoker = _filteredActionsView().SizeChanged(winrt::auto_revoke, [this](auto /*s*/, auto /*e*/) {
-            if (_currentMode == CommandPaletteMode::TabSwitchMode)
+            if (_currentMode == CommandPaletteMode::TabSwitchMode || _currentMode == CommandPaletteMode::WindowSwitchMode)
             {
                 _filteredActionsView().Focus(FocusState::Keyboard);
             }
@@ -287,6 +288,22 @@ namespace winrt::TerminalApp::implementation
             }
         }
 
+        // In the window switcher, pressing the ShowWindowSwitcher chord again
+        // cycles through the list (Shift reverses), mirroring Alt+Tab.
+        if (_currentMode == CommandPaletteMode::WindowSwitchMode && _actionMap)
+        {
+            winrt::Microsoft::Terminal::Control::KeyChord kc{ ctrlDown, altDown, shiftDown, false, static_cast<int32_t>(key), static_cast<int32_t>(scanCode) };
+            if (const auto cmd{ _actionMap.GetActionByKeyChord(kc) })
+            {
+                if (cmd.ActionAndArgs().Action() == ShortcutAction::ShowWindowSwitcher)
+                {
+                    SelectNextItem(!shiftDown);
+                    e.Handled(true);
+                    return;
+                }
+            }
+        }
+
         if (key == VirtualKey::Home && ctrlDown)
         {
             ScrollToTop();
@@ -388,7 +405,7 @@ namespace winrt::TerminalApp::implementation
     bool CommandPalette::OnDirectKeyEvent(const uint32_t vkey, const uint8_t /*scanCode*/, const bool down)
     {
         auto handled = false;
-        if (_currentMode == CommandPaletteMode::TabSwitchMode)
+        if (_currentMode == CommandPaletteMode::TabSwitchMode || _currentMode == CommandPaletteMode::WindowSwitchMode)
         {
             if (vkey == VK_MENU && !down)
             {
@@ -402,7 +419,7 @@ namespace winrt::TerminalApp::implementation
     void CommandPalette::_keyUpHandler(const IInspectable& /*sender*/,
                                        const Windows::UI::Xaml::Input::KeyRoutedEventArgs& e)
     {
-        if (_currentMode == CommandPaletteMode::TabSwitchMode)
+        if (_currentMode == CommandPaletteMode::TabSwitchMode || _currentMode == CommandPaletteMode::WindowSwitchMode)
         {
             _anchorKeyUpHandler();
             e.Handled(true);
@@ -733,6 +750,8 @@ namespace winrt::TerminalApp::implementation
             return _tabActions;
         case CommandPaletteMode::TabSwitchMode:
             return _tabSwitcherMode == TabSwitcherMode::MostRecentlyUsed ? _mruTabActions : _tabActions;
+        case CommandPaletteMode::WindowSwitchMode:
+            return _windowActions;
         case CommandPaletteMode::CommandlineMode:
             return _loadRecentCommands();
         default:
@@ -758,6 +777,11 @@ namespace winrt::TerminalApp::implementation
         else if (_currentMode == CommandPaletteMode::TabSwitchMode || _currentMode == CommandPaletteMode::TabSearchMode)
         {
             _switchToTab(filteredCommand);
+            _close();
+        }
+        else if (_currentMode == CommandPaletteMode::WindowSwitchMode)
+        {
+            _switchToWindow(filteredCommand);
             _close();
         }
         else if (filteredCommand)
@@ -853,6 +877,25 @@ namespace winrt::TerminalApp::implementation
                 {
                     SwitchToTabRequested.raise(*this, tab);
                 }
+            }
+        }
+    }
+
+    // Method Description:
+    // - Dispatch switch to window action.
+    // Arguments:
+    // - filteredCommand - Selected filtered command - might be null
+    // Return Value:
+    // - <none>
+    void CommandPalette::_switchToWindow(const winrt::TerminalApp::FilteredCommand& filteredCommand)
+    {
+        if (filteredCommand)
+        {
+            const auto item{ filteredCommand.Item() };
+            if (item.Type() == PaletteItemType::Window)
+            {
+                const auto windowPaletteItem{ winrt::get_self<WindowPaletteItem>(item) };
+                SwitchToWindowRequested.raise(*this, windowPaletteItem->WindowId());
             }
         }
     }
@@ -1100,6 +1143,21 @@ namespace winrt::TerminalApp::implementation
         _bindTabs(mruTabs, _mruTabActions);
     }
 
+    // Method Description:
+    // - Sets the list of windows to display in the window switcher. The caller
+    //   is expected to provide them in MRU order; unlike tabs, the window list
+    //   is a point-in-time snapshot (it isn't observable), which is fine since
+    //   the switcher is rebuilt every time it's opened.
+    void CommandPalette::SetWindows(const Collections::IVector<winrt::TerminalApp::WindowPaletteItem>& windows)
+    {
+        _windowActions.Clear();
+        for (const auto& window : windows)
+        {
+            auto filteredCommand{ winrt::make<FilteredCommand>(window) };
+            _windowActions.Append(filteredCommand);
+        }
+    }
+
     void CommandPalette::EnableCommandPaletteMode(const CommandPaletteLaunchMode launchMode)
     {
         const auto mode = (launchMode == CommandPaletteLaunchMode::CommandLine) ?
@@ -1136,6 +1194,15 @@ namespace winrt::TerminalApp::implementation
             ControlName(RS_(L"TabSwitcherControlName"));
             PrefixCharacter(L"");
             modeAnnouncementResourceKey = USES_RESOURCE(L"CommandPaletteModeAnnouncement_TabSearchSwitchMode");
+            break;
+        }
+        case CommandPaletteMode::WindowSwitchMode:
+        {
+            SearchBoxPlaceholderText(RS_(L"WindowSwitcher_SearchBoxText"));
+            NoMatchesText(RS_(L"WindowSwitcher_NoMatchesText"));
+            ControlName(RS_(L"WindowSwitcherControlName"));
+            PrefixCharacter(L"");
+            modeAnnouncementResourceKey = USES_RESOURCE(L"CommandPaletteModeAnnouncement_WindowSwitchMode");
             break;
         }
         case CommandPaletteMode::CommandlineMode:
@@ -1191,7 +1258,7 @@ namespace winrt::TerminalApp::implementation
 
         auto commandsToFilter = _commandsToFilter();
 
-        if (_currentMode == CommandPaletteMode::TabSwitchMode)
+        if (_currentMode == CommandPaletteMode::TabSwitchMode || _currentMode == CommandPaletteMode::WindowSwitchMode)
         {
             std::copy(begin(commandsToFilter), end(commandsToFilter), std::back_inserter(actions));
         }
@@ -1327,6 +1394,15 @@ namespace winrt::TerminalApp::implementation
         _switcherStartIdx = tabSwitcherMode == TabSwitcherMode::InOrder ? startIdx : 0;
         _tabSwitcherMode = tabSwitcherMode;
         _switchToMode(CommandPaletteMode::TabSwitchMode);
+    }
+
+    void CommandPalette::EnableWindowSwitcherMode()
+    {
+        // The windows are handed to us in MRU order, so the current window is
+        // always on top. The caller will immediately SelectNextItem() to
+        // pre-select the previously-used window, Alt+Tab style.
+        _switcherStartIdx = 0;
+        _switchToMode(CommandPaletteMode::WindowSwitchMode);
     }
 
     void CommandPalette::EnableTabSearchMode()

@@ -10,6 +10,7 @@ namespace TerminalApp
         Action,
         CommandLine,
         Tab,
+        Window,
     };
 
     interface IPaletteItem requires Windows.UI.Xaml.Data.INotifyPropertyChanged
@@ -25,5 +26,11 @@ namespace TerminalApp
     runtimeclass TabPaletteItem : [default] IPaletteItem, Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
         TerminalTabStatus TabStatus{ get; };
+    }
+
+    runtimeclass WindowPaletteItem : [default] IPaletteItem, Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        WindowPaletteItem(UInt64 windowId, String title, String name);
+        UInt64 WindowId { get; };
     }
 }

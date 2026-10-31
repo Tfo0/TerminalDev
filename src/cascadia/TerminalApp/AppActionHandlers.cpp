@@ -852,6 +852,16 @@ namespace winrt::TerminalApp::implementation
         args.Handled(true);
     }
 
+    void TerminalPage::_HandleShowWindowSwitcher(const IInspectable& /*sender*/,
+                                                 const ActionEventArgs& args)
+    {
+        // We don't know about the other windows in the app layer. Ask the app
+        // host (and from there, the window manager) for the window list; it'll
+        // call back into ShowWindowSwitcher() to actually display the switcher.
+        ShowWindowSwitcherRequested.raise(*this, nullptr);
+        args.Handled(true);
+    }
+
     void TerminalPage::_HandleMoveTab(const IInspectable& sender,
                                       const ActionEventArgs& actionArgs)
     {
