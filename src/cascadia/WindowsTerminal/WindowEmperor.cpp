@@ -394,6 +394,19 @@ void WindowEmperor::HandleCommandlineArgs(int nCmdShow)
         fmt::format_to(std::back_inserter(windowClassName), FMT_COMPILE(L" {:08x}"), hash);
 #endif
     }
+    else
+    {
+        // Distinguish side-by-side packaged installs that share the same
+        // branding (e.g. two "Dev" packages with different package names),
+        // so each package gets its own single-instance mutex/handoff target.
+        const auto familyName = winrt::Windows::ApplicationModel::Package::Current().Id().FamilyName();
+        const auto hash = til::hash(std::wstring_view{ familyName });
+#ifdef _WIN64
+        fmt::format_to(std::back_inserter(windowClassName), FMT_COMPILE(L" {:016x}"), hash);
+#else
+        fmt::format_to(std::back_inserter(windowClassName), FMT_COMPILE(L" {:08x}"), hash);
+#endif
+    }
 
     {
         wil::unique_handle processToken{ GetCurrentProcessToken() };
