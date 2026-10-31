@@ -5439,7 +5439,10 @@ namespace winrt::TerminalApp::implementation
             // will eat focus.
             _paneResources.focusedBorderBrush = SolidColorBrush{ Colors::Black() };
         }
-        _tabStripSplitter.Background(_paneResources.focusedBorderBrush);
+        if (_tabStripSplitter)
+        {
+            _tabStripSplitter.Background(_paneResources.focusedBorderBrush);
+        }
 
         const auto unfocusedBorderBrushKey = winrt::box_value(L"UnfocusedBorderBrush");
         if (res.HasKey(unfocusedBorderBrushKey))
