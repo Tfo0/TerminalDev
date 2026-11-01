@@ -3237,6 +3237,59 @@ namespace winrt::TerminalApp::implementation
     }
 
     // Method Description:
+    // - Gets contextual info about what's in this window, for display in the
+    //   window switcher: the focused pane's CWD and last executed command
+    //   (when shell integration is available).
+    // Return Value:
+    // - "cwd ❯ last command", or whichever parts are available; may be empty
+    hstring TerminalPage::WindowContextInfo()
+    {
+        if (const auto tab{ _GetFocusedTabImpl() })
+        {
+            if (const auto control{ tab->GetActiveTerminalControl() })
+            {
+                const auto cwd{ control.CurrentWorkingDirectory() };
+                winrt::hstring lastCommand;
+                if (const auto context{ control.CommandHistory() })
+                {
+                    if (const auto history{ context.History() })
+                    {
+                        if (const auto size = history.Size(); size > 0)
+                        {
+                            lastCommand = history.GetAt(size - 1);
+                        }
+                    }
+                }
+
+                if (!cwd.empty() && !lastCommand.empty())
+                {
+                    return winrt::hstring{ fmt::format(L"{} \x276F {}", cwd, lastCommand) };
+                }
+                if (!lastCommand.empty())
+                {
+                    return winrt::hstring{ fmt::format(L"\x276F {}", lastCommand) };
+                }
+                return cwd;
+            }
+        }
+        return {};
+    }
+
+    // Method Description:
+    // - Gets the icon of the currently focused tab, for display in the window
+    //   switcher.
+    // Return Value:
+    // - the focused tab's icon path, or empty
+    hstring TerminalPage::WindowIconPath()
+    {
+        if (const auto tab{ _GetFocusedTabImpl() })
+        {
+            return tab->Icon();
+        }
+        return {};
+    }
+
+    // Method Description:
     // - Handles the special case of providing a text override for the UI shortcut due to VK_OEM issue.
     //      Looks at the flags from the KeyChord modifiers and provides a concatenated string value of all
     //      in the same order that XAML would put them as well.

@@ -67,6 +67,8 @@ namespace TerminalApp
         IVector<IPaneContent> Panes { get; };
 
         String Title { get; };
+        String WindowContextInfo();
+        String WindowIconPath();
         Boolean FocusMode { get; };
         Boolean Fullscreen { get; };
         void Maximized(Boolean newMaximized);

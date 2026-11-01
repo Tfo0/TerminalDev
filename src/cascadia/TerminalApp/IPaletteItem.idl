@@ -30,7 +30,7 @@ namespace TerminalApp
 
     runtimeclass WindowPaletteItem : [default] IPaletteItem, Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
-        WindowPaletteItem(UInt64 windowId, String title, String name);
+        WindowPaletteItem(UInt64 windowId, String title, String name, String contextInfo, String icon);
         UInt64 WindowId { get; };
     }
 }

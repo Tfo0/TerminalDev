@@ -47,16 +47,20 @@ namespace winrt::TerminalApp::implementation
         }
     }
 
-    WindowPaletteItem::WindowPaletteItem(uint64_t windowId, const winrt::hstring& title, const winrt::hstring& name) :
+    WindowPaletteItem::WindowPaletteItem(uint64_t windowId, const winrt::hstring& title, const winrt::hstring& name, const winrt::hstring& contextInfo, const winrt::hstring& icon) :
         _windowId{ windowId },
         _title{ title },
-        _icon{ L"" } // TaskView glyph
+        _icon{ icon }
     {
-        // Display the window as "#2" or "#2 [quake]", matching the tray icon menu.
+        // Display the window as "#2 [quake] · C:\path > last-command".
         std::wstring subtitle{ fmt::format(L"#{}", windowId) };
         if (!name.empty())
         {
             fmt::format_to(std::back_inserter(subtitle), L" [{}]", name);
+        }
+        if (!contextInfo.empty())
+        {
+            fmt::format_to(std::back_inserter(subtitle), L" \x00B7 {}", contextInfo);
         }
         _subtitle = winrt::hstring{ subtitle };
     }

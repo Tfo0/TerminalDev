@@ -110,6 +110,8 @@ namespace winrt::TerminalApp::implementation
         void HandoffToElevated(const Microsoft::Terminal::Settings::Model::CascadiaSettings& settings);
 
         hstring Title();
+        hstring WindowContextInfo();
+        hstring WindowIconPath();
 
         void TitlebarClicked();
         void WindowVisibilityChanged(const bool showOrHide);

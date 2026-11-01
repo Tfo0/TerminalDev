@@ -162,7 +162,7 @@ namespace winrt::TerminalApp::implementation
         public WindowPaletteItemT<WindowPaletteItem>,
         BasePaletteItem<WindowPaletteItem, winrt::TerminalApp::PaletteItemType::Window>
     {
-        WindowPaletteItem(uint64_t windowId, const winrt::hstring& title, const winrt::hstring& name);
+        WindowPaletteItem(uint64_t windowId, const winrt::hstring& title, const winrt::hstring& name, const winrt::hstring& contextInfo, const winrt::hstring& icon);
 
         uint64_t WindowId() const noexcept
         {

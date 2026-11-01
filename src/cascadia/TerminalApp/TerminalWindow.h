@@ -116,6 +116,8 @@ namespace winrt::TerminalApp::implementation
         winrt::Windows::Foundation::Collections::IVector<IPaneContent> Panes() const;
 
         hstring Title();
+        hstring WindowContextInfo();
+        hstring WindowIconPath();
         void TitlebarClicked();
         bool OnDirectKeyEvent(const uint32_t vkey, const uint8_t scanCode, const bool down);
 

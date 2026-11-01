@@ -868,6 +868,33 @@ namespace winrt::TerminalApp::implementation
     }
 
     // Method Description:
+    // - Gets contextual info about what's in this window (focused pane's CWD
+    //   and last command), for display in the window switcher.
+    // Return Value:
+    // - the context string, or empty if unavailable
+    hstring TerminalWindow::WindowContextInfo()
+    {
+        if (_root)
+        {
+            return _root->WindowContextInfo();
+        }
+        return {};
+    }
+
+    // Method Description:
+    // - Gets the icon of the currently focused tab, for the window switcher.
+    // Return Value:
+    // - the icon path, or empty if unavailable
+    hstring TerminalWindow::WindowIconPath()
+    {
+        if (_root)
+        {
+            return _root->WindowIconPath();
+        }
+        return {};
+    }
+
+    // Method Description:
     // - Used to tell the app that the titlebar has been clicked. The App won't
     //   actually receive any clicks in the titlebar area, so this is a helper
     //   to clue the app in that a click has happened. The App will use this as

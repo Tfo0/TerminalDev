@@ -342,7 +342,7 @@ void WindowEmperor::ShowWindowSwitcher(AppHost* requester)
     {
         const auto logic = host->Logic();
         const auto props = logic.WindowProperties();
-        items.Append(winrt::TerminalApp::WindowPaletteItem{ props.WindowId(), logic.Title(), props.WindowName() });
+        items.Append(winrt::TerminalApp::WindowPaletteItem{ props.WindowId(), logic.Title(), props.WindowName(), logic.WindowContextInfo(), logic.WindowIconPath() });
     }
 
     requester->Logic().ShowWindowSwitcher(items);
