@@ -743,6 +743,9 @@
   <data name="ShowWindowSwitcherCommandKey" xml:space="preserve">
     <value>显示窗口切换器</value>
   </data>
+  <data name="ShowTabSwitcherCommandKey" xml:space="preserve">
+    <value>显示标签页切换器</value>
+  </data>
   <data name="CloseTab" xml:space="preserve">
     <value>关闭标签页</value>
   </data>

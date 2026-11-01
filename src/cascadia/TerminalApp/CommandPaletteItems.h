@@ -126,7 +126,7 @@ namespace winrt::TerminalApp::implementation
 
         winrt::hstring Subtitle()
         {
-            return {};
+            return _subtitle;
         }
 
         winrt::hstring KeyChordText()
@@ -154,6 +154,7 @@ namespace winrt::TerminalApp::implementation
 
     private:
         winrt::weak_ref<winrt::TerminalApp::Tab> _tab;
+        winrt::hstring _subtitle;
         Windows::UI::Xaml::Data::INotifyPropertyChanged::PropertyChanged_revoker _tabChangedRevoker;
         Windows::UI::Xaml::Data::INotifyPropertyChanged::PropertyChanged_revoker _tabStatusChangedRevoker;
     };

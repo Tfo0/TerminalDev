@@ -114,7 +114,8 @@
     ON_ALL_ACTIONS(OpenAbout)               \
     ON_ALL_ACTIONS(QuickFix)                \
     ON_ALL_ACTIONS(OpenCWD)             \
-    ON_ALL_ACTIONS(ShowWindowSwitcher)
+    ON_ALL_ACTIONS(ShowWindowSwitcher)      \
+    ON_ALL_ACTIONS(ShowTabSwitcher)
 
 #define ALL_SHORTCUT_ACTIONS_WITH_ARGS             \
     ON_ALL_ACTIONS_WITH_ARGS(AdjustFontSize)       \

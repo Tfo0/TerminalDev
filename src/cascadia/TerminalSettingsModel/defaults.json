@@ -575,6 +575,7 @@
         { "command": { "action": "switchToTab", "index": 4294967295 }, "id": "Terminal.SwitchToLastTab" },
         { "command": { "action": "moveTab", "window": "new" }, "id": "Terminal.MoveTabToNewWindow" },
         { "command": "showWindowSwitcher", "id": "Terminal.ShowWindowSwitcher" },
+        { "command": "showTabSwitcher", "id": "Terminal.ShowTabSwitcher" },
 
         // Pane Management
         { "command": "closeOtherPanes", "id": "Terminal.CloseOtherPanes" },
@@ -751,7 +752,7 @@
         { "keys": "ctrl+shift+d", "id": "Terminal.DuplicateTab" },
         { "keys": "ctrl+tab", "id": "Terminal.NextTab" },
         { "keys": "ctrl+shift+tab", "id": "Terminal.PrevTab" },
-        { "keys": "alt+`", "id": "Terminal.ShowWindowSwitcher" },
+        { "keys": "alt+`", "id": "Terminal.ShowTabSwitcher" },
         { "keys": "ctrl+alt+1", "id": "Terminal.SwitchToTab0" },
         { "keys": "ctrl+alt+2", "id": "Terminal.SwitchToTab1" },
         { "keys": "ctrl+alt+3", "id": "Terminal.SwitchToTab2" },

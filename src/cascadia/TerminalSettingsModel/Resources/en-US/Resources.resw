@@ -743,6 +743,9 @@
   <data name="ShowWindowSwitcherCommandKey" xml:space="preserve">
     <value>Show window switcher</value>
   </data>
+  <data name="ShowTabSwitcherCommandKey" xml:space="preserve">
+    <value>Show tab switcher</value>
+  </data>
   <data name="CloseTab" xml:space="preserve">
     <value>Close tab</value>
   </data>

@@ -290,12 +290,15 @@ namespace winrt::TerminalApp::implementation
 
         // In the window switcher, pressing the ShowWindowSwitcher chord again
         // cycles through the list (Shift reverses), mirroring Alt+Tab.
-        if (_currentMode == CommandPaletteMode::WindowSwitchMode && _actionMap)
+        // The tab switcher behaves the same with the ShowTabSwitcher chord.
+        if ((_currentMode == CommandPaletteMode::WindowSwitchMode || _currentMode == CommandPaletteMode::TabSwitchMode) && _actionMap)
         {
             winrt::Microsoft::Terminal::Control::KeyChord kc{ ctrlDown, altDown, shiftDown, false, static_cast<int32_t>(key), static_cast<int32_t>(scanCode) };
             if (const auto cmd{ _actionMap.GetActionByKeyChord(kc) })
             {
-                if (cmd.ActionAndArgs().Action() == ShortcutAction::ShowWindowSwitcher)
+                const auto action = cmd.ActionAndArgs().Action();
+                if ((_currentMode == CommandPaletteMode::WindowSwitchMode && action == ShortcutAction::ShowWindowSwitcher) ||
+                    (_currentMode == CommandPaletteMode::TabSwitchMode && action == ShortcutAction::ShowTabSwitcher))
                 {
                     SelectNextItem(!shiftDown);
                     e.Handled(true);

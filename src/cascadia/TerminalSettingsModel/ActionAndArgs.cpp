@@ -102,6 +102,7 @@ static constexpr std::string_view OpenAboutKey{ "openAbout" };
 static constexpr std::string_view QuickFixKey{ "quickFix" };
 static constexpr std::string_view OpenCWDKey{ "openCWD" };
 static constexpr std::string_view ShowWindowSwitcherKey{ "showWindowSwitcher" };
+static constexpr std::string_view ShowTabSwitcherKey{ "showTabSwitcher" };
 
 static constexpr std::string_view ActionKey{ "action" };
 

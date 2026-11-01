@@ -862,6 +862,20 @@ namespace winrt::TerminalApp::implementation
         args.Handled(true);
     }
 
+    void TerminalPage::_HandleShowTabSwitcher(const IInspectable& /*sender*/,
+                                              const ActionEventArgs& args)
+    {
+        // Show this window's tabs in MRU order, with the previously-used tab
+        // pre-selected, so tapping the bound chord once and releasing it
+        // immediately switches to it, Alt+Tab style.
+        const auto p = LoadCommandPalette();
+        p.SetTabs(_tabs, _mruTabs);
+        p.EnableTabSwitcherMode(0, TabSwitcherMode::MostRecentlyUsed);
+        p.Visibility(Visibility::Visible);
+        p.SelectNextItem(true);
+        args.Handled(true);
+    }
+
     void TerminalPage::_HandleMoveTab(const IInspectable& sender,
                                       const ActionEventArgs& actionArgs)
     {

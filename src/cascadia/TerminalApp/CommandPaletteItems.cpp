@@ -21,6 +21,39 @@ namespace winrt::TerminalApp::implementation
     TabPaletteItem::TabPaletteItem(const winrt::TerminalApp::Tab& tab) :
         _tab{ tab }
     {
+        // Show what this tab is actually doing as the subtitle: the active
+        // pane's CWD and last executed command (when shell integration is
+        // available), so tabs are recognizable without relying on the title.
+        if (const auto control{ winrt::get_self<winrt::TerminalApp::implementation::Tab>(tab)->GetActiveTerminalControl() })
+        {
+            const auto cwd{ control.CurrentWorkingDirectory() };
+            winrt::hstring lastCommand;
+            if (const auto context{ control.CommandHistory() })
+            {
+                if (const auto history{ context.History() })
+                {
+                    if (const auto size = history.Size(); size > 0)
+                    {
+                        lastCommand = history.GetAt(size - 1);
+                    }
+                }
+            }
+
+            std::wstring subtitle;
+            if (!cwd.empty() && !lastCommand.empty())
+            {
+                subtitle = fmt::format(L"{} \x276F {}", cwd, lastCommand);
+            }
+            else if (!lastCommand.empty())
+            {
+                subtitle = fmt::format(L"\x276F {}", lastCommand);
+            }
+            else if (!cwd.empty())
+            {
+                subtitle = fmt::format(L"{}", cwd);
+            }
+            _subtitle = winrt::hstring{ subtitle };
+        }
         _tabChangedRevoker = tab.PropertyChanged(winrt::auto_revoke, [=](auto& sender, auto& e) {
             if (auto senderTab{ sender.try_as<winrt::TerminalApp::Tab>() })
             {
