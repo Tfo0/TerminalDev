@@ -32,6 +32,7 @@ namespace winrt::TerminalApp::implementation
         // unpinned, regardless of where the pointer is.
         void SetPinned(bool pinned);
         void Expand();
+        void Collapse();
 
     private:
         static constexpr double CollapsedWidth{ EdgeTabLayout::CollapsedWidth };

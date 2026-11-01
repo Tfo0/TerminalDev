@@ -724,13 +724,11 @@ namespace winrt::TerminalApp::implementation
             _sidebarTabSwitchActive = true;
             _sidebarTabSwitchOrigin = _GetFocusedTab();
             _sidebarTabSwitchSnapshot.clear();
-            for (const auto& tab : _mruTabs)
+            for (const auto& tab : _tabs)
             {
                 _sidebarTabSwitchSnapshot.push_back(tab);
             }
-            // Index 0 in MRU order is the current tab; the advance below moves
-            // to index 1, so a single tap + release lands on the previous tab.
-            _sidebarTabSwitchIndex = 0;
+            _sidebarTabSwitchIndex = _GetFocusedTabIndex().value_or(0);
 
             _edgeTabSidebarController->SetPinned(true);
             _edgeTabSidebarController->Expand();
@@ -800,9 +798,8 @@ namespace winrt::TerminalApp::implementation
         _sidebarTabSwitchSnapshot.clear();
         if (_edgeTabSidebarController)
         {
-            // Unpinning schedules the usual collapse unless the pointer
-            // happens to be inside the sidebar.
             _edgeTabSidebarController->SetPinned(false);
+            _edgeTabSidebarController->Collapse();
         }
     }
 

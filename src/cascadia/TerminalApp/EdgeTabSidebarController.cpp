@@ -206,6 +206,11 @@ namespace winrt::TerminalApp::implementation
         _expand();
     }
 
+    void EdgeTabSidebarController::Collapse()
+    {
+        _setExpanded(false, false);
+    }
+
     void EdgeTabSidebarController::_expand()
     {
         if (_isVisible)
