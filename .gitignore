@@ -286,3 +286,5 @@ profiles.json
 
 # MSBuildCache
 /MSBuildCacheLogs/
+# local agent docs (keep local only)
+CLAUDE.md
