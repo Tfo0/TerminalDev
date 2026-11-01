@@ -368,11 +368,20 @@ Get-ChildItem -Path $SourceDir -Recurse -Filter *.xaml | ForEach-Object {
 
         if ($includeInBuildIndex)
         {
+            $entryNavigationParam = if ($navigationParam -eq 'nullptr')
+            {
+                $navigationParam
+            }
+            else
+            {
+                "winrt::box_value(hstring{L`"$($navigationParam)`"})"
+            }
+
             $entries += [pscustomobject]@{
                 DisplayTextUid       = "L`"$($uid)/Header`""
                 DisplayTextLocalized = "RS_(L`"$($uid)/Header`")"
                 ParentPage           = $pageClass
-                NavigationParam      = $navigationParam -eq "nullptr" ? $navigationParam : "winrt::box_value(hstring{L`"$($navigationParam)`"})"
+                NavigationParam      = $entryNavigationParam
                 SubPage              = $subPage
                 ElementName          = "L`"$($name)`""
                 File                 = $filename
@@ -381,12 +390,21 @@ Get-ChildItem -Path $SourceDir -Recurse -Filter *.xaml | ForEach-Object {
 
         if ($includeInPartialIndex)
         {
+            $entrySubPage = if ($navigationParam -eq 'NewTabMenu_Nav')
+            {
+                'BreadcrumbSubPage::NewTabMenu_Folder'
+            }
+            else
+            {
+                $subPage
+            }
+
             $entries += [pscustomobject]@{
                 DisplayTextUid       = "L`"$($uid)/Header`""
                 DisplayTextLocalized = "RS_(L`"$($uid)/Header`")"
                 ParentPage           = $pageClass
                 NavigationParam      = 'nullptr'  # VM param at runtime
-                SubPage              = $navigationParam -eq 'NewTabMenu_Nav' ? 'BreadcrumbSubPage::NewTabMenu_Folder' : $subPage
+                SubPage              = $entrySubPage
                 ElementName          = "L`"$($name)`""
                 File                 = $filename
             }

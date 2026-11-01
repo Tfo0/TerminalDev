@@ -397,11 +397,16 @@ namespace winrt::TerminalApp::implementation
         {
             // The TabViewItem Icon needs MUX while the IconSourceElement in the CommandPalette needs WUX...
             Icon({});
+            TabViewItem().Tag(nullptr);
             TabViewItem().IconSource(IconSource{ nullptr });
         }
         else
         {
             Icon(_lastIconPath);
+            const auto iconElement = Microsoft::Terminal::UI::IconPathConverter::IconWUX(_lastIconPath);
+            iconElement.Width(16);
+            iconElement.Height(16);
+            TabViewItem().Tag(iconElement);
             bool isMonochrome = iconStyle == IconStyle::Monochrome;
             TabViewItem().IconSource(Microsoft::Terminal::UI::IconPathConverter::IconSourceMUX(_lastIconPath, isMonochrome));
         }
@@ -421,11 +426,16 @@ namespace winrt::TerminalApp::implementation
             if (hide)
             {
                 Icon({});
+                TabViewItem().Tag(nullptr);
                 TabViewItem().IconSource(IconSource{ nullptr });
             }
             else
             {
                 Icon(_lastIconPath);
+                const auto iconElement = Microsoft::Terminal::UI::IconPathConverter::IconWUX(_lastIconPath);
+                iconElement.Width(16);
+                iconElement.Height(16);
+                TabViewItem().Tag(iconElement);
                 TabViewItem().IconSource(Microsoft::Terminal::UI::IconPathConverter::IconSourceMUX(_lastIconPath, _lastIconStyle == IconStyle::Monochrome));
             }
             _iconHidden = hide;

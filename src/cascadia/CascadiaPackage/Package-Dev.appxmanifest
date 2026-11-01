@@ -20,7 +20,7 @@
   <Identity
     Name="WindowsTerminalDev"
     Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-    Version="0.0.1.0" />
+    Version="0.0.1.9" />
 
   <Properties>
     <DisplayName>ms-resource:AppStoreNameDev</DisplayName>
@@ -38,11 +38,12 @@
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
 
   <Resources>
     <Resource Language="EN-US" />
+    <Resource Language="ZH-CN" />
   </Resources>
 
   <Applications>
@@ -85,7 +86,7 @@
                 <uap3:Name>com.microsoft.windows.terminal.settings</uap3:Name>
               </uap3:AppExtensionHost>
         </uap3:Extension>
-        <!-- <uap3:Extension Category="windows.appExtension">
+        <uap3:Extension Category="windows.appExtension">
             <uap3:AppExtension Name="com.microsoft.windows.console.host"
                 Id="OpenConsole-Dev"
                 DisplayName="OpenConsole Dev"
@@ -128,7 +129,7 @@
                 </com:SurrogateServer>
             </com:ComServer>
         </com:Extension>
-        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+        <!-- <desktop4:Extension Category="windows.fileExplorerContextMenus">
             <desktop4:FileExplorerContextMenus>
                 <desktop5:ItemType Type="Directory">
                     <desktop5:Verb Id="OpenTerminalDev" Clsid="52065414-e077-47ec-a3ac-1cc5455e1b54" />
@@ -150,3 +151,4 @@
     <rescap:Capability Name="unvirtualizedResources" />
   </Capabilities>
 </Package>
+

@@ -52,8 +52,12 @@ AppHost::AppHost(WindowEmperor* manager, const winrt::TerminalApp::AppLogic& log
 
     // _HandleCommandlineArgs will create a _windowLogic
     const auto tabPos = _windowLogic.GetTabPosition();
-    _useNonClientArea = (tabPos == winrt::Microsoft::Terminal::Settings::Model::TabPosition::Top) &&
-                        _windowLogic.GetShowTabsInTitlebar();
+    const auto usesEdgeTabSidebar =
+        tabPos == winrt::Microsoft::Terminal::Settings::Model::TabPosition::Left ||
+        tabPos == winrt::Microsoft::Terminal::Settings::Model::TabPosition::Right;
+    _useNonClientArea = usesEdgeTabSidebar ||
+                        ((tabPos == winrt::Microsoft::Terminal::Settings::Model::TabPosition::Top) &&
+                         _windowLogic.GetShowTabsInTitlebar());
 
     if (_useNonClientArea)
     {
@@ -252,6 +256,12 @@ void AppHost::Initialize()
 
     _appLogic.Create();
     _windowLogic.Create();
+
+    if (_useNonClientArea)
+    {
+        auto nonClientWindow{ static_cast<NonClientIslandWindow*>(_window.get()) };
+        nonClientWindow->SetTitlebarBackground(_windowLogic.TitlebarBrush());
+    }
 
     _revokers.TitleChanged = _windowLogic.TitleChanged(winrt::auto_revoke, { this, &AppHost::_AppTitleChanged });
     _revokers.CloseWindowRequested = _windowLogic.CloseWindowRequested(winrt::auto_revoke, { this, &AppHost::_CloseRequested });

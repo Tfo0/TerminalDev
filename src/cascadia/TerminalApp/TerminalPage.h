@@ -7,6 +7,8 @@
 
 #include "TerminalPage.g.h"
 #include "Tab.h"
+#include "EdgeTabSidebarController.h"
+#include "EdgeTitlebarContent.h"
 #include "AppKeyBindings.h"
 #include "AppCommandlineArgs.h"
 #include "RenameWindowRequestedArgs.g.h"
@@ -225,10 +227,16 @@ namespace winrt::TerminalApp::implementation
         TerminalApp::TabRowControl _tabRow{ nullptr };
         Windows::UI::Xaml::Controls::Grid _tabContent{ nullptr };
         Microsoft::UI::Xaml::Controls::SplitButton _newTabButton{ nullptr };
+        Windows::UI::Xaml::Controls::Button _verticalSettingsButton{ nullptr };
+        Windows::UI::Xaml::Controls::FontIcon _verticalSettingsIcon{ nullptr };
         winrt::TerminalApp::ColorPickupFlyout _tabColorPicker{ nullptr };
 
         Microsoft::Terminal::Settings::Model::TabPosition _tabPosition{ Microsoft::Terminal::Settings::Model::TabPosition::Top };
+        Windows::UI::Xaml::Controls::Grid _edgeTabSidebar{ nullptr };
+        Windows::UI::Xaml::Controls::Grid _edgeTabContentGrid{ nullptr };
         Windows::UI::Xaml::Controls::Border _tabStripSplitter{ nullptr };
+        std::unique_ptr<EdgeTabSidebarController> _edgeTabSidebarController;
+        std::unique_ptr<EdgeTitlebarContent> _edgeTitlebarContent;
 
         Microsoft::Terminal::Settings::Model::CascadiaSettings _settings{ nullptr };
 
@@ -245,11 +253,6 @@ namespace winrt::TerminalApp::implementation
         bool _isMaximized{ false };
         bool _isAlwaysOnTop{ false };
         bool _showTabsFullscreen{ false };
-
-        // Splitter drag state for left/right tab positions
-        bool _splitterDragging{ false };
-        double _splitterDragStartX{ 0.0 };
-        double _splitterDragStartWidth{ 0.0 };
 
         std::optional<uint32_t> _loadFromPersistedLayoutIdx{};
 
@@ -351,6 +354,9 @@ namespace winrt::TerminalApp::implementation
         void _UpdateTabView();
         void _UpdateTabWidthMode();
         void _ApplyTabPosition();
+        void _SetEdgeTabSidebarExpanded(bool expanded);
+        void _UpdateElevationShield();
+        void _UpdateEdgeTitlebarTitle();
         void _SetBackgroundImage(const winrt::Microsoft::Terminal::Settings::Model::IAppearanceConfig& newAppearance);
 
         void _DuplicateFocusedTab();

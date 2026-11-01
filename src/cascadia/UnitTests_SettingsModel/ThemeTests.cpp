@@ -358,11 +358,11 @@ namespace SettingsModelUnitTests
             VERIFY_ARE_EQUAL("top", reJson["window"]["tabPosition"].asString());
         }
 
-        // Parse default — should be Top
+        // Parse default — this fork uses Edge-style tabs on the left
         {
             const auto schemeObject = VerifyParseSucceeded(defaultTheme);
             auto theme = Theme::FromJson(schemeObject);
-            VERIFY_ARE_EQUAL(Settings::Model::TabPosition::Top, theme->Window().TabPosition());
+            VERIFY_ARE_EQUAL(Settings::Model::TabPosition::Left, theme->Window().TabPosition());
         }
     }
 }

@@ -159,7 +159,7 @@ Author(s):
     X(winrt::Microsoft::Terminal::Settings::Model::ThemeColor, UnfocusedFrame, "unfocusedFrame", nullptr)                          \
     X(bool, RainbowFrame, "experimental.rainbowFrame", false)                                                                      \
     X(bool, UseMica, "useMica", false)                                                                                             \
-    X(winrt::Microsoft::Terminal::Settings::Model::TabPosition, TabPosition, "tabPosition", winrt::Microsoft::Terminal::Settings::Model::TabPosition::Top)
+    X(winrt::Microsoft::Terminal::Settings::Model::TabPosition, TabPosition, "tabPosition", winrt::Microsoft::Terminal::Settings::Model::TabPosition::Left)
 
 #define MTSM_THEME_SETTINGS_SETTINGS(X) \
     X(winrt::Windows::UI::Xaml::ElementTheme, RequestedTheme, "theme", winrt::Windows::UI::Xaml::ElementTheme::Default)

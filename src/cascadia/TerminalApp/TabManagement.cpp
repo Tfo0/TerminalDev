@@ -10,6 +10,7 @@
 
 #include "pch.h"
 #include "TerminalPage.h"
+#include "EdgeTabLayoutConstants.h"
 #include "Utils.h"
 #include "../../types/inc/utils.hpp"
 #include "../../inc/til/string.h"
@@ -156,6 +157,11 @@ namespace winrt::TerminalApp::implementation
         // Set this tab's icon to the icon from the content
         _UpdateTabIcon(*newTabImpl);
 
+        if (_edgeTabSidebarController)
+        {
+            _SetEdgeTabSidebarExpanded(_edgeTabSidebarController->IsExpanded());
+        }
+
         tabViewItem.PointerPressed({ this, &TerminalPage::_OnTabPointerPressed });
 
         // When the tab requests close, try to close it (prompt for approval, if required)
@@ -258,27 +264,23 @@ namespace winrt::TerminalApp::implementation
             if (_tabPosition == Settings::Model::TabPosition::Left ||
                 _tabPosition == Settings::Model::TabPosition::Right)
             {
-                // For left/right positions, collapse the column width instead of row height.
-                // Also hide the splitter.
-                _tabRow.Width(isVisible ? std::numeric_limits<double>::quiet_NaN() : 0);
-                if (_tabStripSplitter)
+                if (_edgeTabSidebarController)
                 {
-                    _tabStripSplitter.Visibility(isVisible ? Visibility::Visible : Visibility::Collapsed);
+                    _edgeTabSidebarController->SetVisible(isVisible);
                 }
-                // Collapse or restore the tab strip column
-                auto tabStripColIdx = (_tabPosition == Settings::Model::TabPosition::Left) ? 0u : 2u;
-                auto root = this->Root();
-                if (root.ColumnDefinitions().Size() > tabStripColIdx)
+                else if (_edgeTabSidebar)
                 {
-                    auto col = root.ColumnDefinitions().GetAt(tabStripColIdx);
-                    if (isVisible)
-                    {
-                        col.Width(WUX::GridLengthHelper::FromPixels(200));
-                    }
-                    else
-                    {
-                        col.Width(WUX::GridLengthHelper::FromPixels(0));
-                    }
+                    _edgeTabSidebar.Visibility(isVisible ? Visibility::Visible : Visibility::Collapsed);
+                }
+
+                if (_edgeTabContentGrid)
+                {
+                    constexpr double collapsedSidebarWidth{ EdgeTabLayout::CollapsedWidth };
+                    _edgeTabContentGrid.Margin(
+                        !isVisible ? WUX::Thickness{} :
+                        _tabPosition == Settings::Model::TabPosition::Left ?
+                            WUX::Thickness{ collapsedSidebarWidth, 0, 0, 0 } :
+                            WUX::Thickness{ 0, 0, collapsedSidebarWidth, 0 });
                 }
             }
             else
@@ -1028,6 +1030,7 @@ namespace winrt::TerminalApp::implementation
             tab.TabViewItem().StartBringIntoView();
 
             // Raise an event that our title changed
+            _UpdateEdgeTitlebarTitle();
             TitleChanged.raise(*this, nullptr);
 
             _updateThemeColors();

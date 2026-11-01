@@ -91,11 +91,229 @@
                                                     Style="{StaticResource VerticalTabViewListViewStyle}" />
 
                         <!--  Footer (new tab button)  -->
-                        <ContentPresenter x:Name="RightContentPresenter"
-                                          Grid.Row="2"
-                                          Content="{TemplateBinding TabStripFooter}"
-                                          ContentTemplate="{TemplateBinding TabStripFooterTemplate}" />
+                        <Border Grid.Row="2"
+                                Margin="4,0,4,4"
+                                Padding="0,6,0,0"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="0,1,0,0">
+                            <ContentPresenter x:Name="RightContentPresenter"
+                                              HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Content="{TemplateBinding TabStripFooter}"
+                                              ContentTemplate="{TemplateBinding TabStripFooterTemplate}" />
+                        </Border>
                     </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+        VerticalNewTabSplitButtonStyle:
+        Keeps the primary new-tab action visually separate from regular tabs.
+        The profile menu action is hosted in the custom titlebar for vertical tabs.
+    -->
+    <Style x:Key="VerticalNewTabSplitButtonStyle"
+           TargetType="mux:SplitButton">
+        <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="mux:SplitButton">
+                    <Border x:Name="OuterBorder"
+                            BorderBrush="Transparent"
+                            BorderThickness="0"
+                            CornerRadius="{ThemeResource ControlCornerRadius}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="OuterBorder.BorderBrush" Value="{ThemeResource ButtonBorderBrushDisabled}" />
+                                        <Setter Target="PrimaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundDisabled}" />
+                                        <Setter Target="SecondaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundDisabled}" />
+                                        <Setter Target="PrimaryButton.Foreground" Value="{ThemeResource ButtonForegroundDisabled}" />
+                                        <Setter Target="SecondaryButton.Foreground" Value="{ThemeResource ButtonForegroundDisabled}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="FlyoutOpen">
+                                    <VisualState.Setters>
+                                        <Setter Target="SecondaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundPressed}" />
+                                        <Setter Target="SecondaryButton.Foreground" Value="{ThemeResource ButtonForegroundPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="TouchPressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="PrimaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundPressed}" />
+                                        <Setter Target="SecondaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundPressed}" />
+                                        <Setter Target="PrimaryButton.Foreground" Value="{ThemeResource ButtonForegroundPressed}" />
+                                        <Setter Target="SecondaryButton.Foreground" Value="{ThemeResource ButtonForegroundPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="PrimaryPointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="PrimaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundPointerOver}" />
+                                        <Setter Target="PrimaryButton.Foreground" Value="{ThemeResource ButtonForegroundPointerOver}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="PrimaryPressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="PrimaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundPressed}" />
+                                        <Setter Target="PrimaryButton.Foreground" Value="{ThemeResource ButtonForegroundPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="SecondaryPointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="SecondaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundPointerOver}" />
+                                        <Setter Target="SecondaryButton.Foreground" Value="{ThemeResource ButtonForegroundPointerOver}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="SecondaryPressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="SecondaryBackgroundGrid.Background" Value="{ThemeResource ButtonBackgroundPressed}" />
+                                        <Setter Target="SecondaryButton.Foreground" Value="{ThemeResource ButtonForegroundPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+
+                            <VisualStateGroup x:Name="SecondaryButtonPlacementStates">
+                                <VisualState x:Name="SecondaryButtonRight" />
+                                <VisualState x:Name="SecondaryButtonSpan" />
+                            </VisualStateGroup>
+
+                            <VisualStateGroup x:Name="SidebarDisplayStates">
+                                <VisualState x:Name="ExpandedSidebar" />
+                                <VisualState x:Name="CompactSidebar">
+                                    <VisualState.Setters>
+                                        <Setter Target="NewTabLabel.Visibility" Value="Collapsed" />
+                                        <Setter Target="NewTabIcon.Margin" Value="0" />
+                                        <Setter Target="PrimaryContent.HorizontalAlignment" Value="Center" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Grid x:Name="RootGrid"
+                              Height="28"
+                              Background="Transparent">
+                            <Grid.Resources>
+                                <Style x:Key="VerticalNewTabInnerButtonStyle"
+                                       TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderBrush" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}" />
+                                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalAlignment" Value="Stretch" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                    <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Grid Background="Transparent">
+                                                    <ContentPresenter x:Name="ContentPresenter"
+                                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                      Content="{TemplateBinding Content}"
+                                                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                                      Foreground="{TemplateBinding Foreground}" />
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Grid.Resources>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="28" />
+                                <RowDefinition Height="0" />
+                                <RowDefinition Height="0" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="0" />
+                                <ColumnDefinition Width="0" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid x:Name="PrimaryBackgroundGrid"
+                                  Grid.Row="0"
+                                  Grid.Column="0"
+                                  Grid.ColumnSpan="3"
+                                  Background="{ThemeResource ButtonBackground}" />
+                            <Grid x:Name="SecondaryBackgroundGrid"
+                                  Grid.Row="2"
+                                  Grid.Column="0"
+                                  Grid.ColumnSpan="3"
+                                  Background="{ThemeResource ButtonBackground}" />
+                            <Border x:Name="CompactDivider"
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="3"
+                                    Background="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    Visibility="Collapsed" />
+
+                            <Button x:Name="PrimaryButton"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="3"
+                                    Padding="10,0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="0"
+                                    AutomationProperties.AccessibilityView="Raw"
+                                    Command="{TemplateBinding Command}"
+                                    CommandParameter="{TemplateBinding CommandParameter}"
+                                    IsTabStop="False"
+                                    Style="{StaticResource VerticalNewTabInnerButtonStyle}">
+                                <StackPanel x:Name="PrimaryContent"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Orientation="Horizontal">
+                                    <FontIcon x:Name="NewTabIcon"
+                                              Margin="0,0,8,0"
+                                              FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              FontSize="12"
+                                              Glyph="&#xE710;"
+                                              IsTextScaleFactorEnabled="False" />
+                                    <ContentPresenter x:Name="NewTabLabel"
+                                                      VerticalAlignment="Center"
+                                                      Content="{TemplateBinding Content}"
+                                                      ContentTemplate="{TemplateBinding ContentTemplate}" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button x:Name="SecondaryButton"
+                                    Grid.Row="2"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="3"
+                                    Padding="0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="0"
+                                    AutomationProperties.AccessibilityView="Raw"
+                                    IsTabStop="False"
+                                    Style="{StaticResource VerticalNewTabInnerButtonStyle}"
+                                    Visibility="Collapsed">
+                                <FontIcon HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          FontSize="9"
+                                          Glyph="&#xE70D;"
+                                          IsTextScaleFactorEnabled="False" />
+                            </Button>
+                        </Grid>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -195,6 +413,27 @@
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
+
+                            <VisualStateGroup x:Name="SidebarDisplayStates">
+                                <VisualState x:Name="ExpandedSidebar" />
+                                <VisualState x:Name="CompactSidebar">
+                                    <VisualState.Setters>
+                                        <Setter Target="ContentPresenter.Visibility" Value="Collapsed" />
+                                        <Setter Target="CloseButton.Width" Value="0" />
+                                        <Setter Target="CloseButton.Margin" Value="0" />
+                                        <Setter Target="CloseButton.Opacity" Value="0" />
+                                        <Setter Target="CloseButton.IsHitTestVisible" Value="False" />
+                                        <Setter Target="IconColumn.Width" Value="16" />
+                                        <Setter Target="TitleColumn.Width" Value="0" />
+                                        <Setter Target="CloseColumn.Width" Value="0" />
+                                        <Setter Target="IconBox.Margin" Value="0" />
+                                        <Setter Target="IconBox.HorizontalAlignment" Value="Center" />
+                                        <Setter Target="TabContainer.Width" Value="36" />
+                                        <Setter Target="TabContainer.HorizontalAlignment" Value="Center" />
+                                        <Setter Target="TabContainer.Padding" Value="10,6" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
 
                         <!--  Selected tab background  -->
@@ -206,18 +445,24 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition x:Name="IconColumn"
                                                       Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition x:Name="TitleColumn"
+                                                      Width="*" />
+                                    <ColumnDefinition x:Name="CloseColumn"
+                                                      Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
                                 <!--  Tab icon  -->
                                 <Viewbox x:Name="IconBox"
                                          Grid.Column="0"
+                                         Width="16"
+                                         Height="16"
                                          MaxWidth="16"
                                          MaxHeight="16"
                                          Margin="0,0,8,0">
                                     <ContentControl x:Name="IconControl"
-                                                    Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TabViewTemplateSettings.IconElement}"
+                                                    Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Tag}"
+                                                    Foreground="{ThemeResource TabViewItemIconForeground}"
+                                                    HighContrastAdjustment="None"
                                                     IsTabStop="False" />
                                 </Viewbox>
 

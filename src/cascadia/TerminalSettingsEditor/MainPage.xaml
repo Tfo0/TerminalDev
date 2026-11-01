@@ -99,56 +99,6 @@
             </Grid>
         </muxc:NavigationView.Header>
 
-        <muxc:NavigationView.AutoSuggestBox>
-            <AutoSuggestBox x:Name="SettingsSearchBox"
-                            x:Uid="Nav_SearchBox"
-                            QueryIcon="Find"
-                            QuerySubmitted="SettingsSearchBox_QuerySubmitted"
-                            SuggestionChosen="SettingsSearchBox_SuggestionChosen"
-                            TextChanged="SettingsSearchBox_TextChanged">
-                <AutoSuggestBox.ItemTemplate>
-                    <DataTemplate x:DataType="local:FilteredSearchResult">
-                        <Grid HorizontalAlignment="Stretch"
-                              ColumnSpacing="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <ContentPresenter Grid.Column="0"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Content="{x:Bind Icon}" />
-                            <StackPanel Grid.Column="1"
-                                        VerticalAlignment="Center">
-                                <TextBlock FontSize="{ThemeResource BodyTextBlockFontSize}"
-                                           Foreground="{ThemeResource TextFillColorPrimary}"
-                                           Text="{x:Bind Label}"
-                                           TextTrimming="CharacterEllipsis" />
-                                <TextBlock FontSize="{ThemeResource CaptionTextBlockFontSize}"
-                                           Foreground="{ThemeResource TextFillColorSecondary}"
-                                           Text="{x:Bind SecondaryLabel}"
-                                           TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind mtu:Converters.StringNotEmptyToVisibility(SecondaryLabel)}" />
-                            </StackPanel>
-
-                            <ToolTipService.ToolTip>
-                                <StackPanel>
-                                    <TextBlock FontSize="{ThemeResource CaptionTextBlockFontSize}"
-                                               Foreground="{ThemeResource TextFillColorPrimary}"
-                                               Text="{x:Bind Label}" />
-                                    <TextBlock FontSize="{ThemeResource CaptionTextBlockFontSize}"
-                                               Foreground="{ThemeResource TextFillColorSecondary}"
-                                               Text="{x:Bind SecondaryLabel}"
-                                               Visibility="{x:Bind mtu:Converters.StringNotEmptyToVisibility(SecondaryLabel)}" />
-                                </StackPanel>
-                            </ToolTipService.ToolTip>
-                        </Grid>
-                    </DataTemplate>
-                </AutoSuggestBox.ItemTemplate>
-            </AutoSuggestBox>
-        </muxc:NavigationView.AutoSuggestBox>
-
         <muxc:NavigationView.MenuItems>
             <muxc:NavigationViewItem x:Name="LaunchNavItem"
                                      x:Uid="Nav_Launch"

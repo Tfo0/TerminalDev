@@ -2883,8 +2883,10 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         }
         else
         {
-            // Do we ever get here (= uninitialized terminal)? If so: How?
-            assert(false);
+            // Yes, we can get here (= uninitialized terminal): during a pane
+            // split the layout pass queries MinimumSize before the connection
+            // has finished initializing. Fall back to a harmless estimate
+            // instead of asserting, which crashes unpackaged debug builds.
             return { 10, 10 };
         }
     }

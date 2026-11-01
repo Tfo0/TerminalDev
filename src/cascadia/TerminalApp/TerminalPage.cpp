@@ -16,6 +16,7 @@
 #include "../TerminalSettingsAppAdapterLib/TerminalSettings.h"
 #include "App.h"
 #include "DebugTapConnection.h"
+#include "EdgeTabLayoutConstants.h"
 #include "MarkdownPaneContent.h"
 #include "Remoting.h"
 #include "ScratchpadContent.h"
@@ -215,6 +216,38 @@ namespace clipboard
 
 namespace winrt::TerminalApp::implementation
 {
+    namespace
+    {
+        template<typename T>
+        T _FindVisualChildByName(const WUX::DependencyObject& root, const std::wstring_view name)
+        {
+            if (!root)
+            {
+                return nullptr;
+            }
+
+            const auto childCount = WUX::Media::VisualTreeHelper::GetChildrenCount(root);
+            for (int32_t index = 0; index < childCount; ++index)
+            {
+                const auto child = WUX::Media::VisualTreeHelper::GetChild(root, index);
+                if (const auto element = child.try_as<WUX::FrameworkElement>(); element && element.Name() == name)
+                {
+                    if (const auto result = element.try_as<T>())
+                    {
+                        return result;
+                    }
+                }
+
+                if (const auto result = _FindVisualChildByName<T>(child, name))
+                {
+                    return result;
+                }
+            }
+
+            return nullptr;
+        }
+    }
+
     TerminalPage::TerminalPage(TerminalApp::WindowProperties properties, const TerminalApp::ContentManager& manager) :
         _tabs{ winrt::single_threaded_observable_vector<TerminalApp::Tab>() },
         _mruTabs{ winrt::single_threaded_observable_vector<TerminalApp::Tab>() },
@@ -413,10 +446,9 @@ namespace winrt::TerminalApp::implementation
         case TabPosition::Left:
         case TabPosition::Right:
         {
-            // Build a 3-column layout: [tabstrip | splitter | content] or reversed.
-            // Remove only the three layout elements; leave deferred-load stubs
-            // (CommandPalette, SuggestionsControl, dialogs, etc.) in the tree
-            // so that FindName() can still locate them later.
+            // Reserve a compact icon rail and overlay the expanded sidebar on
+            // top of the terminal content. This avoids changing the terminal's
+            // character grid every time the pointer enters or leaves the rail.
             uint32_t removeIdx;
             if (root.Children().IndexOf(_tabRow, removeIdx))
                 root.Children().RemoveAt(removeIdx);
@@ -426,20 +458,16 @@ namespace winrt::TerminalApp::implementation
                 root.Children().RemoveAt(removeIdx);
 
             root.RowDefinitions().Clear();
+            root.ColumnDefinitions().Clear();
 
-            // Create column definitions
-            WUX::Controls::ColumnDefinition tabStripCol;
-            tabStripCol.Width(WUX::GridLengthHelper::FromPixels(200));
-            tabStripCol.MinWidth(100);
-            tabStripCol.MaxWidth(400);
+            WUX::Controls::RowDefinition rootRow;
+            rootRow.Height(WUX::GridLengthHelper::FromValueAndType(1, WUX::GridUnitType::Star));
+            root.RowDefinitions().Append(rootRow);
 
-            WUX::Controls::ColumnDefinition splitterCol;
-            splitterCol.Width(WUX::GridLengthHelper::FromValueAndType(1, WUX::GridUnitType::Auto));
+            WUX::Controls::ColumnDefinition rootColumn;
+            rootColumn.Width(WUX::GridLengthHelper::FromValueAndType(1, WUX::GridUnitType::Star));
+            root.ColumnDefinitions().Append(rootColumn);
 
-            WUX::Controls::ColumnDefinition contentCol;
-            contentCol.Width(WUX::GridLengthHelper::FromValueAndType(1, WUX::GridUnitType::Star));
-
-            // Create internal content grid (infobars + tab content stacked vertically)
             WUX::Controls::Grid contentGrid;
             WUX::Controls::RowDefinition infoRow;
             infoRow.Height(WUX::GridLengthHelper::FromValueAndType(1, WUX::GridUnitType::Auto));
@@ -452,111 +480,112 @@ namespace winrt::TerminalApp::implementation
             WUX::Controls::Grid::SetRow(_tabContent, 1);
             contentGrid.Children().Append(infoBarPanel);
             contentGrid.Children().Append(_tabContent);
+            _edgeTabContentGrid = contentGrid;
 
-            // Create the splitter border
-            _tabStripSplitter = WUX::Controls::Border();
-            _tabStripSplitter.Width(4);
-            // the BG color will get set in _updatePaneResources
+            contentGrid.Margin(_tabPosition == TabPosition::Left ?
+                                   WUX::Thickness{ EdgeTabLayout::CollapsedWidth, 0, 0, 0 } :
+                                   WUX::Thickness{ 0, 0, EdgeTabLayout::CollapsedWidth, 0 });
 
-            // Use a custom cursor via InputSystemCursorShape
-            _tabStripSplitter.ManipulationMode(WUX::Input::ManipulationModes::None);
+            _edgeTabSidebar = WUX::Controls::Grid{};
+            _edgeTabSidebar.VerticalAlignment(WUX::VerticalAlignment::Stretch);
+            _edgeTabSidebar.HorizontalAlignment(_tabPosition == TabPosition::Left ?
+                                                     WUX::HorizontalAlignment::Left :
+                                                     WUX::HorizontalAlignment::Right);
+            WUX::Controls::RowDefinition tabRowDefinition;
+            tabRowDefinition.Height(WUX::GridLengthHelper::FromValueAndType(1, WUX::GridUnitType::Star));
+            WUX::Controls::RowDefinition settingsRowDefinition;
+            settingsRowDefinition.Height(WUX::GridLengthHelper::FromValueAndType(1, WUX::GridUnitType::Auto));
+            _edgeTabSidebar.RowDefinitions().Append(tabRowDefinition);
+            _edgeTabSidebar.RowDefinitions().Append(settingsRowDefinition);
 
-            // Wire up pointer events for the splitter
-            _tabStripSplitter.PointerEntered([](const auto& /*sender*/, const auto&) {
-                if (const auto coreWindow = Windows::UI::Core::CoreWindow::GetForCurrentThread())
+            const auto transparentBrush = WUX::Media::SolidColorBrush{ Windows::UI::Colors::Transparent() };
+            const auto sidebarBackground = _tabRow.Background();
+            _edgeTabSidebar.Background(sidebarBackground);
+
+            const auto settingsText = RS_(L"SettingsMenuItem");
+            _verticalSettingsButton = WUX::Controls::Button{};
+            _verticalSettingsButton.Height(40.0);
+            _verticalSettingsButton.MinWidth(0.0);
+            _verticalSettingsButton.Margin({ 2, 4, 2, 4 });
+            _verticalSettingsButton.Padding({ 10, 0, 10, 0 });
+            _verticalSettingsButton.HorizontalAlignment(WUX::HorizontalAlignment::Stretch);
+            _verticalSettingsButton.HorizontalContentAlignment(WUX::HorizontalAlignment::Center);
+            _verticalSettingsButton.VerticalContentAlignment(WUX::VerticalAlignment::Center);
+            _verticalSettingsButton.BorderThickness({ 0, 0, 0, 0 });
+            _verticalSettingsButton.Background(sidebarBackground);
+            _verticalSettingsButton.Visibility(WUX::Visibility::Visible);
+            _verticalSettingsButton.Click({ this, &TerminalPage::_SettingsButtonOnClick });
+            Automation::AutomationProperties::SetName(_verticalSettingsButton, settingsText);
+            WUX::Controls::ToolTipService::SetToolTip(_verticalSettingsButton, box_value(RS_(L"SettingsToolTip")));
+
+            _verticalSettingsIcon = WUX::Controls::FontIcon{};
+            _verticalSettingsIcon.FontFamily(Media::FontFamily{ L"Segoe Fluent Icons, Segoe MDL2 Assets" });
+            _verticalSettingsIcon.FontSize(14.0);
+            _verticalSettingsIcon.Glyph(L"\xE713");
+            _verticalSettingsIcon.IsTextScaleFactorEnabled(false);
+            _verticalSettingsButton.Content(_verticalSettingsIcon);
+
+            if (const auto resources = Application::Current().Resources())
+            {
+                if (const auto value = resources.Lookup(winrt::box_value(L"TabViewItemIconForeground")))
                 {
-                    coreWindow.PointerCursor(
-                        Windows::UI::Core::CoreCursor{ Windows::UI::Core::CoreCursorType::SizeWestEast, 0 });
-                }
-            });
-            _tabStripSplitter.PointerExited([](const auto& /*sender*/, const auto&) {
-                if (const auto coreWindow = Windows::UI::Core::CoreWindow::GetForCurrentThread())
-                {
-                    coreWindow.PointerCursor(
-                        Windows::UI::Core::CoreCursor{ Windows::UI::Core::CoreCursorType::Arrow, 0 });
-                }
-            });
-            _tabStripSplitter.PointerPressed([weakThis{ get_weak() }](const auto& sender, const WUX::Input::PointerRoutedEventArgs& args) {
-                if (auto page{ weakThis.get() })
-                {
-                    auto border = sender.template as<WUX::Controls::Border>();
-                    border.CapturePointer(args.Pointer());
-                    page->_splitterDragging = true;
-                    page->_splitterDragStartX = args.GetCurrentPoint(page->Root()).Position().X;
-                    // Find the tab strip column width
-                    auto tabStripColIdx = (page->_tabPosition == TabPosition::Left) ? 0u : 2u;
-                    page->_splitterDragStartWidth = page->Root().ColumnDefinitions().GetAt(tabStripColIdx).ActualWidth();
-                    args.Handled(true);
-                }
-            });
-            _tabStripSplitter.PointerMoved([weakThis{ get_weak() }](const auto& /*sender*/, const WUX::Input::PointerRoutedEventArgs& args) {
-                if (auto page{ weakThis.get() })
-                {
-                    if (!page->_splitterDragging)
-                        return;
-                    auto currentX = args.GetCurrentPoint(page->Root()).Position().X;
-                    auto delta = currentX - page->_splitterDragStartX;
-                    auto tabStripColIdx = (page->_tabPosition == TabPosition::Left) ? 0u : 2u;
-                    auto newWidth = (page->_tabPosition == TabPosition::Left) ? (page->_splitterDragStartWidth + delta) : (page->_splitterDragStartWidth - delta);
-                    newWidth = std::clamp(newWidth, 100.0, 400.0);
-                    page->Root().ColumnDefinitions().GetAt(tabStripColIdx).Width(WUX::GridLengthHelper::FromPixels(newWidth));
-                    args.Handled(true);
-                }
-            });
-            _tabStripSplitter.PointerReleased([weakThis{ get_weak() }](const auto& sender, const WUX::Input::PointerRoutedEventArgs& args) {
-                if (auto page{ weakThis.get() })
-                {
-                    if (page->_splitterDragging)
+                    if (const auto brush = value.try_as<WUX::Media::Brush>())
                     {
-                        page->_splitterDragging = false;
-                        auto border = sender.template as<WUX::Controls::Border>();
-                        border.ReleasePointerCapture(args.Pointer());
-                        args.Handled(true);
+                        _verticalSettingsButton.Foreground(brush);
+                        _verticalSettingsIcon.Foreground(brush);
                     }
                 }
-            });
+            }
+
+            _tabStripSplitter = WUX::Controls::Border();
+            _tabStripSplitter.Width(4);
+            _tabStripSplitter.Background(transparentBrush);
+            _tabStripSplitter.Opacity(0.0);
+            _tabStripSplitter.IsHitTestVisible(false);
+            _tabStripSplitter.ManipulationMode(WUX::Input::ManipulationModes::None);
+
+            WUX::Controls::ColumnDefinition tabStripColumn;
+            tabStripColumn.Width(WUX::GridLengthHelper::FromValueAndType(1, WUX::GridUnitType::Star));
+            _edgeTabSidebar.ColumnDefinitions().Append(tabStripColumn);
 
             if (_tabPosition == TabPosition::Left)
             {
-                root.ColumnDefinitions().Append(tabStripCol);
-                root.ColumnDefinitions().Append(splitterCol);
-                root.ColumnDefinitions().Append(contentCol);
-
                 WUX::Controls::Grid::SetColumn(_tabRow, 0);
-                WUX::Controls::Grid::SetColumn(_tabStripSplitter, 1);
-                WUX::Controls::Grid::SetColumn(contentGrid, 2);
+                WUX::Controls::Grid::SetColumn(_tabStripSplitter, 0);
+                WUX::Controls::Grid::SetColumn(_verticalSettingsButton, 0);
+                _tabStripSplitter.HorizontalAlignment(WUX::HorizontalAlignment::Right);
             }
-            else // Right
+            else
             {
-                root.ColumnDefinitions().Append(contentCol);
-                root.ColumnDefinitions().Append(splitterCol);
-                root.ColumnDefinitions().Append(tabStripCol);
-
-                WUX::Controls::Grid::SetColumn(contentGrid, 0);
-                WUX::Controls::Grid::SetColumn(_tabStripSplitter, 1);
-                WUX::Controls::Grid::SetColumn(_tabRow, 2);
+                WUX::Controls::Grid::SetColumn(_tabStripSplitter, 0);
+                WUX::Controls::Grid::SetColumn(_tabRow, 0);
+                WUX::Controls::Grid::SetColumn(_verticalSettingsButton, 0);
+                _tabStripSplitter.HorizontalAlignment(WUX::HorizontalAlignment::Left);
             }
 
-            // Clear any row assignments from XAML
             WUX::Controls::Grid::SetRow(_tabRow, 0);
+            WUX::Controls::Grid::SetRow(_tabStripSplitter, 0);
+            WUX::Controls::Grid::SetRowSpan(_tabStripSplitter, 2);
+            WUX::Controls::Grid::SetRow(_verticalSettingsButton, 1);
+            WUX::Controls::Grid::SetRow(contentGrid, 0);
+            WUX::Controls::Grid::SetRow(_edgeTabSidebar, 0);
+            WUX::Controls::Grid::SetColumn(contentGrid, 0);
+            WUX::Controls::Grid::SetColumn(_edgeTabSidebar, 0);
 
-            // Insert layout elements at the front so overlay elements
-            // (command palette, dialogs) remain on top in z-order.
-            root.Children().InsertAt(0, _tabRow);
-            root.Children().InsertAt(1, _tabStripSplitter);
-            root.Children().InsertAt(2, contentGrid);
+            _edgeTabSidebar.Children().Append(_tabRow);
+            _edgeTabSidebar.Children().Append(_tabStripSplitter);
+            _edgeTabSidebar.Children().Append(_verticalSettingsButton);
 
-            // Update remaining overlay children (deferred-load stubs for
-            // CommandPalette, SuggestionsControl, dialogs, InfoBars,
-            // TeachingTips, etc.) so they span all 3 columns and cover the
-            // full width of the page, not just the tab strip column.
-            for (uint32_t i = 3; i < root.Children().Size(); ++i)
+            root.Children().InsertAt(0, contentGrid);
+            root.Children().InsertAt(1, _edgeTabSidebar);
+
+            for (uint32_t i = 2; i < root.Children().Size(); ++i)
             {
                 auto child = root.Children().GetAt(i);
                 if (const auto& fwe { child.try_as<WUX::FrameworkElement>() })
                 {
                     WUX::Controls::Grid::SetColumn(fwe, 0);
-                    WUX::Controls::Grid::SetColumnSpan(fwe, 3);
+                    WUX::Controls::Grid::SetColumnSpan(fwe, 1);
                     WUX::Controls::Grid::SetRow(fwe, 0);
                 }
             }
@@ -568,6 +597,16 @@ namespace winrt::TerminalApp::implementation
                 {
                     _tabView.Style(verticalTabViewStyle.as<WUX::Style>());
                 }
+                if (const auto verticalNewTabButtonStyle = res.Lookup(winrt::box_value(L"VerticalNewTabSplitButtonStyle")))
+                {
+                    _newTabButton.Style(verticalNewTabButtonStyle.as<WUX::Style>());
+                    _newTabButton.Height(NAN);
+                    _newTabButton.Margin({ 2, 1, 2, 1 });
+                    _newTabButton.HorizontalAlignment(WUX::HorizontalAlignment::Stretch);
+                    _newTabButton.VerticalAlignment(WUX::VerticalAlignment::Stretch);
+                    _newTabButton.Content(winrt::box_value(RS_(L"TabNewButtonText")));
+                }
+
                 // Apply the vertical TabViewItem style as an implicit style
                 // on the TabRow's resources so new tab items pick it up.
                 if (const auto verticalItemStyle = res.Lookup(winrt::box_value(L"VerticalTabViewItemStyle")))
@@ -588,32 +627,78 @@ namespace winrt::TerminalApp::implementation
             // tabs start at the top of the vertical strip.
             _tabView.VerticalAlignment(WUX::VerticalAlignment::Top);
 
-            // Bug fix: In vertical mode, give the "new tab" button a text
-            // label ("New tab") next to its "+" icon so it reads naturally
-            // in the wider sidebar.
-            if (_newTabButton)
-            {
-                auto panel = WUX::Controls::StackPanel();
-                panel.Orientation(WUX::Controls::Orientation::Horizontal);
-                panel.Spacing(8);
+            _edgeTitlebarContent = std::make_unique<EdgeTitlebarContent>([weakThis{ get_weak() }] {
+                if (const auto page = weakThis.get())
+                {
+                    page->_OpenNewTabDropdown();
+                }
+            });
+            _UpdateEdgeTitlebarTitle();
+            SetTitleBarContent.raise(*this, _edgeTitlebarContent->Root());
 
-                WUX::Controls::FontIcon plusIcon{};
-                plusIcon.Glyph(L"\uE710");
-                plusIcon.FontFamily(WUX::Media::FontFamily{ L"Segoe Fluent Icons, Segoe MDL2 Assets" });
-                plusIcon.FontSize(12);
-                panel.Children().Append(plusIcon);
-
-                WUX::Controls::TextBlock label{};
-                label.Text(RS_(L"TabNewButtonText"));
-                label.VerticalAlignment(WUX::VerticalAlignment::Center);
-                label.FontFamily(WUX::Media::FontFamily{ L"Segoe UI" });
-                panel.Children().Append(label);
-
-                _newTabButton.Content(panel);
-            }
+            _edgeTabSidebarController = std::make_unique<EdgeTabSidebarController>(
+                _edgeTabSidebar,
+                _tabStripSplitter,
+                _hostingHwnd.value_or(nullptr),
+                _tabPosition == TabPosition::Left,
+                !_settings.GlobalSettings().DisableAnimations(),
+                [weakThis{ get_weak() }](const bool expanded) {
+                    if (const auto page = weakThis.get())
+                    {
+                        page->_SetEdgeTabSidebarExpanded(expanded);
+                    }
+                });
             break;
         }
         }
+    }
+
+    void TerminalPage::_SetEdgeTabSidebarExpanded(const bool expanded)
+    {
+        WUX::Style verticalItemStyle{ nullptr };
+        if (const auto resources = Application::Current().Resources())
+        {
+            if (const auto value = resources.Lookup(winrt::box_value(L"VerticalTabViewItemStyle")))
+            {
+                verticalItemStyle = value.as<WUX::Style>();
+            }
+        }
+
+        for (const auto& tab : _tabs)
+        {
+            if (const auto item = tab.TabViewItem())
+            {
+                if (verticalItemStyle && item.Style() != verticalItemStyle)
+                {
+                    item.Style(verticalItemStyle);
+                }
+
+                item.ApplyTemplate();
+                WUX::VisualStateManager::GoToState(item, expanded ? L"ExpandedSidebar" : L"CompactSidebar", false);
+                WUX::VisualStateManager::GoToState(item, item.IconSource() ? L"Icon" : L"NoIcon", false);
+            }
+        }
+
+        if (_newTabButton)
+        {
+            _newTabButton.Height(40.0);
+            _newTabButton.ApplyTemplate();
+            WUX::VisualStateManager::GoToState(_newTabButton, expanded ? L"ExpandedSidebar" : L"CompactSidebar", false);
+
+            if (const auto label = _FindVisualChildByName<WUX::UIElement>(_newTabButton, L"NewTabLabel"))
+            {
+                label.Visibility(expanded ? WUX::Visibility::Visible : WUX::Visibility::Collapsed);
+            }
+            if (const auto icon = _FindVisualChildByName<WUX::FrameworkElement>(_newTabButton, L"NewTabIcon"))
+            {
+                icon.Margin(expanded ? WUX::Thickness{ 0, 0, 8, 0 } : WUX::Thickness{});
+            }
+            if (const auto content = _FindVisualChildByName<WUX::FrameworkElement>(_newTabButton, L"PrimaryContent"))
+            {
+                content.HorizontalAlignment(expanded ? WUX::HorizontalAlignment::Left : WUX::HorizontalAlignment::Center);
+            }
+        }
+
     }
 
     void TerminalPage::Create()
@@ -715,7 +800,7 @@ namespace winrt::TerminalApp::implementation
         // initialized the first time they're opened, in whatever method opens
         // them.
 
-        _tabRow.ShowElevationShield(IsRunningElevated() && _settings.GlobalSettings().ShowAdminShield());
+        _UpdateElevationShield();
 
         _adjustProcessPriorityThrottled = std::make_shared<ThrottledFunc<>>(
             DispatcherQueue::GetForCurrentThread(),
@@ -1238,26 +1323,29 @@ namespace winrt::TerminalApp::implementation
 
         // add static items
         {
-            // Create the settings button.
-            auto settingsItem = WUX::Controls::MenuFlyoutItem{};
-            settingsItem.Text(RS_(L"SettingsMenuItem"));
-            const auto settingsToolTip = RS_(L"SettingsToolTip");
-
-            WUX::Controls::ToolTipService::SetToolTip(settingsItem, box_value(settingsToolTip));
-            Automation::AutomationProperties::SetHelpText(settingsItem, settingsToolTip);
-
-            WUX::Controls::SymbolIcon ico{};
-            ico.Symbol(WUX::Controls::Symbol::Setting);
-            settingsItem.Icon(ico);
-
-            settingsItem.Click({ this, &TerminalPage::_SettingsButtonOnClick });
-            newTabFlyout.Items().Append(settingsItem);
-
             auto actionMap = _settings.ActionMap();
-            const auto settingsKeyChord{ actionMap.GetKeyBindingForAction(L"Terminal.OpenSettingsUI") };
-            if (settingsKeyChord)
+            const auto usesEdgeTabSidebar = _tabPosition == TabPosition::Left || _tabPosition == TabPosition::Right;
+            if (!usesEdgeTabSidebar)
             {
-                _SetAcceleratorForMenuItem(settingsItem, settingsKeyChord);
+                auto settingsItem = WUX::Controls::MenuFlyoutItem{};
+                settingsItem.Text(RS_(L"SettingsMenuItem"));
+                const auto settingsToolTip = RS_(L"SettingsToolTip");
+
+                WUX::Controls::ToolTipService::SetToolTip(settingsItem, box_value(settingsToolTip));
+                Automation::AutomationProperties::SetHelpText(settingsItem, settingsToolTip);
+
+                WUX::Controls::SymbolIcon ico{};
+                ico.Symbol(WUX::Controls::Symbol::Setting);
+                settingsItem.Icon(ico);
+
+                settingsItem.Click({ this, &TerminalPage::_SettingsButtonOnClick });
+                newTabFlyout.Items().Append(settingsItem);
+
+                const auto settingsKeyChord{ actionMap.GetKeyBindingForAction(L"Terminal.OpenSettingsUI") };
+                if (settingsKeyChord)
+                {
+                    _SetAcceleratorForMenuItem(settingsItem, settingsKeyChord);
+                }
             }
 
             // Create the command palette button.
@@ -1633,7 +1721,17 @@ namespace winrt::TerminalApp::implementation
     // Shows the dropdown flyout.
     void TerminalPage::_OpenNewTabDropdown()
     {
-        _newTabButton.Flyout().ShowAt(_newTabButton);
+        if (const auto flyout = _newTabButton.Flyout())
+        {
+            if (_edgeTitlebarContent)
+            {
+                flyout.ShowAt(_edgeTitlebarContent->MenuButton());
+            }
+            else
+            {
+                flyout.ShowAt(_newTabButton);
+            }
+        }
     }
 
     void TerminalPage::_OpenNewTerminalViaDropdown(const NewTerminalArgs newTerminalArgs)
@@ -2212,7 +2310,29 @@ namespace winrt::TerminalApp::implementation
     {
         if (tab == _GetFocusedTab())
         {
+            _UpdateEdgeTitlebarTitle();
             TitleChanged.raise(*this, nullptr);
+        }
+    }
+
+    void TerminalPage::_UpdateEdgeTitlebarTitle()
+    {
+        if (_edgeTitlebarContent)
+        {
+            const auto tab = _GetFocusedTab();
+            _edgeTitlebarContent->Title(tab ? tab.Title() : hstring{ L"Terminal" });
+        }
+    }
+
+    void TerminalPage::_UpdateElevationShield()
+    {
+        const auto showShield = IsRunningElevated() && _settings.GlobalSettings().ShowAdminShield();
+        const auto usesEdgeTabSidebar = _tabPosition == TabPosition::Left || _tabPosition == TabPosition::Right;
+
+        _tabRow.ShowElevationShield(showShield && !usesEdgeTabSidebar);
+        if (_edgeTitlebarContent)
+        {
+            _edgeTitlebarContent->ShowElevationShield(showShield && usesEdgeTabSidebar);
         }
     }
 
@@ -4142,7 +4262,7 @@ namespace winrt::TerminalApp::implementation
         // want to create an animation.
         WUX::Media::Animation::Timeline::AllowDependentAnimations(!_settings.GlobalSettings().DisableAnimations());
 
-        _tabRow.ShowElevationShield(IsRunningElevated() && _settings.GlobalSettings().ShowAdminShield());
+        _UpdateElevationShield();
 
         Media::SolidColorBrush transparent{ Windows::UI::Colors::Transparent() };
         _tabView.Background(transparent);
@@ -5195,7 +5315,12 @@ namespace winrt::TerminalApp::implementation
                                                             theme.TabRow().UnfocusedBackground()) :
                                               ThemeColor{ nullptr } };
 
-        if (_settings.GlobalSettings().UseAcrylicInTabRow())
+        const auto usesEdgeTabSidebar = _tabPosition == TabPosition::Left || _tabPosition == TabPosition::Right;
+        if (usesEdgeTabSidebar)
+        {
+            TitlebarBrush(backgroundSolidBrush);
+        }
+        else if (_settings.GlobalSettings().UseAcrylicInTabRow())
         {
             if (tabRowBg)
             {
@@ -5223,6 +5348,23 @@ namespace winrt::TerminalApp::implementation
         {
             // Nothing was set in the theme - fall back to our original `TabViewBackground` color.
             TitlebarBrush(backgroundSolidBrush);
+        }
+
+        if (usesEdgeTabSidebar)
+        {
+            const auto edgeBackground = TitlebarBrush();
+            if (_edgeTabSidebar)
+            {
+                _edgeTabSidebar.Background(edgeBackground);
+            }
+            if (_verticalSettingsButton)
+            {
+                _verticalSettingsButton.Background(edgeBackground);
+            }
+            if (_edgeTitlebarContent)
+            {
+                _edgeTitlebarContent->Background(edgeBackground);
+            }
         }
 
         if (_tabPosition != TabPosition::Top || !_settings.GlobalSettings().ShowTabsInTitlebar())

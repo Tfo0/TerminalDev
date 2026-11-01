@@ -211,7 +211,6 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         Automation::AutomationProperties::SetHelpText(OpenJsonNavItem(), RS_(L"Nav_OpenJSON/[using:Windows.UI.Xaml.Controls]ToolTipService/ToolTip"));
 
         _breadcrumbs = single_threaded_observable_vector<IInspectable>();
-        _UpdateSearchIndex();
     }
 
     // Method Description:
@@ -330,7 +329,6 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         _Navigate(unbox_value<hstring>(firstItem.Tag()), BreadcrumbSubPage::None);
         SettingsNav().SelectedItem(firstItem);
 
-        _UpdateSearchIndex();
     }
 
     void MainPage::SetHostingWindow(uint64_t hostingWindow) noexcept
@@ -1217,121 +1215,4 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         }
     }
 
-    safe_void_coroutine MainPage::SettingsSearchBox_TextChanged(const AutoSuggestBox& sender, const AutoSuggestBoxTextChangedEventArgs& args)
-    {
-        if (args.Reason() != AutoSuggestionBoxTextChangeReason::UserInput)
-        {
-            // Only respond to user input, not programmatic text changes
-            co_return;
-        }
-
-        // remove leading spaces
-        std::wstring queryW{ sender.Text() };
-        const auto firstNonSpace{ queryW.find_first_not_of(L' ') };
-        if (firstNonSpace == std::wstring::npos)
-        {
-            // only spaces
-            const auto& searchBox = SettingsSearchBox();
-            searchBox.ItemsSource(nullptr);
-            searchBox.IsSuggestionListOpen(false);
-            co_return;
-        }
-
-        const hstring sanitizedQuery{ queryW.substr(firstNonSpace) };
-        if (sanitizedQuery.empty())
-        {
-            // empty query
-            const auto& searchBox = SettingsSearchBox();
-            searchBox.ItemsSource(nullptr);
-            searchBox.IsSuggestionListOpen(false);
-            co_return;
-        }
-
-        if (_currentSearch)
-        {
-            // a newer search has started, abandon this one
-            _currentSearch.Cancel();
-            co_return;
-        }
-        _currentSearch = SearchIndex::Instance().SearchAsync(sanitizedQuery,
-                                                             _profileVMs.GetView(),
-                                                             get_self<implementation::NewTabMenuViewModel>(_newTabMenuPageVM)->FolderTreeFlatList().GetView(),
-                                                             _colorSchemesPageVM.AllColorSchemes().GetView(),
-                                                             _extensionsVM.ExtensionPackages().GetView(),
-                                                             _actionsVM.CommandList().GetView());
-        const auto results = co_await _currentSearch;
-        _currentSearch = nullptr;
-
-        // Update the UI with the results
-        const auto& searchBox = SettingsSearchBox();
-        searchBox.ItemsSource(results);
-        searchBox.IsSuggestionListOpen(true);
-    }
-
-    void MainPage::SettingsSearchBox_QuerySubmitted(const AutoSuggestBox& /*sender*/, const AutoSuggestBoxQuerySubmittedEventArgs& args)
-    {
-        if (args.ChosenSuggestion())
-        {
-            const auto& chosenResult{ args.ChosenSuggestion().as<FilteredSearchResult>() };
-            if (chosenResult->IsNoResultsPlaceholder())
-            {
-                // don't navigate anywhere
-                return;
-            }
-
-            // Navigate to the target page
-            const auto& indexEntry{ chosenResult->SearchIndexEntry() };
-            const auto& navigationArg{ chosenResult->NavigationArg() };
-            const auto& subpage{ indexEntry.Entry->SubPage };
-            const auto& elementToFocus{ indexEntry.Entry->ElementName };
-            if (const auto navArgString = navigationArg.try_as<hstring>())
-            {
-                _Navigate(*navArgString, subpage, elementToFocus);
-            }
-            else if (const auto& profileVM = navigationArg.try_as<Editor::ProfileViewModel>())
-            {
-                _Navigate(profileVM, subpage, elementToFocus);
-            }
-            else if (const auto& colorSchemeVM = navigationArg.try_as<Editor::ColorSchemeViewModel>())
-            {
-                _Navigate(colorSchemeVM, subpage, elementToFocus);
-            }
-            else if (const auto& ntmEntryVM = navigationArg.try_as<Editor::NewTabMenuEntryViewModel>())
-            {
-                _Navigate(ntmEntryVM, subpage, elementToFocus);
-            }
-            else if (const auto& extPkgVM = navigationArg.try_as<Editor::ExtensionPackageViewModel>())
-            {
-                _Navigate(extPkgVM, subpage, elementToFocus);
-            }
-            else if (const auto& commandVM = navigationArg.try_as<Editor::CommandViewModel>())
-            {
-                _Navigate(commandVM, subpage, elementToFocus);
-            }
-            SettingsSearchBox().Text(L"");
-        }
-    }
-
-    void MainPage::SettingsSearchBox_SuggestionChosen(const AutoSuggestBox&, const AutoSuggestBoxSuggestionChosenEventArgs&)
-    {
-        // Don't navigate on arrow keys
-        // Handle Enter/Click with QuerySubmitted() to instead
-        // AutoSuggestBox will pass the chosen item to QuerySubmitted() via args.ChosenSuggestion()
-    }
-
-    safe_void_coroutine MainPage::_UpdateSearchIndex()
-    {
-        auto weakThis = get_weak();
-
-        co_await winrt::resume_background();
-
-        if (auto strongThis = weakThis.get())
-        {
-            if (strongThis->_currentSearch && strongThis->_currentSearch.Status() == AsyncStatus::Started)
-            {
-                strongThis->_currentSearch.Cancel();
-            }
-            SearchIndex::Instance().Reset();
-        }
-    }
 }

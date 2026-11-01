@@ -7,7 +7,6 @@
 #include "Breadcrumb.g.h"
 #include "NavigateToPageArgs.g.h"
 #include "Utils.h"
-#include "SearchIndex.h"
 
 namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
 {
@@ -49,10 +48,6 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         MainPage(const Model::CascadiaSettings& settings);
 
         void UpdateSettings(const Model::CascadiaSettings& settings);
-
-        safe_void_coroutine SettingsSearchBox_TextChanged(const Windows::UI::Xaml::Controls::AutoSuggestBox& sender, const Windows::UI::Xaml::Controls::AutoSuggestBoxTextChangedEventArgs& args);
-        void SettingsSearchBox_QuerySubmitted(const Windows::UI::Xaml::Controls::AutoSuggestBox& sender, const Windows::UI::Xaml::Controls::AutoSuggestBoxQuerySubmittedEventArgs& args);
-        void SettingsSearchBox_SuggestionChosen(const Windows::UI::Xaml::Controls::AutoSuggestBox& sender, const Windows::UI::Xaml::Controls::AutoSuggestBoxSuggestionChosenEventArgs& args);
 
         void SettingsNav_Loaded(const Windows::Foundation::IInspectable& sender, const Windows::UI::Xaml::RoutedEventArgs& args);
         void SettingsNav_ItemInvoked(const Microsoft::UI::Xaml::Controls::NavigationView& sender, const Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs& args);
@@ -105,16 +100,12 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         void _UpdateBackgroundForMica();
         void _MoveXamlParsedNavItemsIntoItemSource();
 
-        safe_void_coroutine _UpdateSearchIndex();
-
         winrt::Microsoft::Terminal::Settings::Editor::ProfileViewModel _profileDefaultsVM{ nullptr };
         Windows::Foundation::Collections::IVector<winrt::Microsoft::Terminal::Settings::Editor::ProfileViewModel> _profileVMs{ nullptr };
         winrt::Microsoft::Terminal::Settings::Editor::ColorSchemesPageViewModel _colorSchemesPageVM{ nullptr };
         winrt::Microsoft::Terminal::Settings::Editor::ActionsViewModel _actionsVM{ nullptr };
         winrt::Microsoft::Terminal::Settings::Editor::NewTabMenuViewModel _newTabMenuPageVM{ nullptr };
         winrt::Microsoft::Terminal::Settings::Editor::ExtensionsViewModel _extensionsVM{ nullptr };
-
-        Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IObservableVector<Windows::Foundation::IInspectable>> _currentSearch{ nullptr };
 
         Windows::UI::Xaml::Data::INotifyPropertyChanged::PropertyChanged_revoker _profileViewModelChangedRevoker;
         Windows::UI::Xaml::Data::INotifyPropertyChanged::PropertyChanged_revoker _colorSchemesPageViewModelChangedRevoker;

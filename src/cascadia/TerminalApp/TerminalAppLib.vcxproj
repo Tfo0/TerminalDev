@@ -110,6 +110,9 @@
     <ClInclude Include="TaskbarState.h">
       <DependentUpon>TaskbarState.idl</DependentUpon>
     </ClInclude>
+    <ClInclude Include="EdgeTabLayoutConstants.h" />
+    <ClInclude Include="EdgeTabSidebarController.h" />
+    <ClInclude Include="EdgeTitlebarContent.h" />
     <ClInclude Include="TerminalPage.h">
       <DependentUpon>TerminalPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -212,6 +215,8 @@
     <ClCompile Include="TaskbarState.cpp">
       <DependentUpon>TaskbarState.idl</DependentUpon>
     </ClCompile>
+    <ClCompile Include="EdgeTabSidebarController.cpp" />
+    <ClCompile Include="EdgeTitlebarContent.cpp" />
     <ClCompile Include="TerminalPage.cpp">
       <DependentUpon>TerminalPage.xaml</DependentUpon>
       <SubType>Code</SubType>
