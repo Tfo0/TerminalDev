@@ -701,6 +701,111 @@ namespace winrt::TerminalApp::implementation
 
     }
 
+    // Method Description:
+    // - Entry point for keyboard tab switching via the expanded sidebar. The
+    //   first press pins the sidebar open and snapshots the MRU tab order;
+    //   every press (including the first) advances to the next tab in that
+    //   snapshot with live preview, Alt+Tab style. Releasing Alt commits via
+    //   _OnSidebarTabSwitchTick; Esc cancels via OnDirectKeyEvent.
+    void TerminalPage::_BeginOrAdvanceSidebarTabSwitch()
+    {
+        if (!_edgeTabSidebarController)
+        {
+            return;
+        }
+
+        if (!_sidebarTabSwitchActive)
+        {
+            if (_mruTabs.Size() < 2)
+            {
+                return;
+            }
+
+            _sidebarTabSwitchActive = true;
+            _sidebarTabSwitchOrigin = _GetFocusedTab();
+            _sidebarTabSwitchSnapshot.clear();
+            for (const auto& tab : _mruTabs)
+            {
+                _sidebarTabSwitchSnapshot.push_back(tab);
+            }
+            // Index 0 in MRU order is the current tab; the advance below moves
+            // to index 1, so a single tap + release lands on the previous tab.
+            _sidebarTabSwitchIndex = 0;
+
+            _edgeTabSidebarController->SetPinned(true);
+            _edgeTabSidebarController->Expand();
+
+            // Poll the global key state for the Alt release instead of relying
+            // on key events: the XAML input stack never delivers an Alt key-up,
+            // and the window may lose focus entirely mid-switch (Alt+Tab away).
+            if (!_sidebarTabSwitchTimer)
+            {
+                _sidebarTabSwitchTimer = WUX::DispatcherTimer{};
+                _sidebarTabSwitchTimer.Interval(std::chrono::milliseconds{ 50 });
+                _sidebarTabSwitchTimer.Tick([weakThis{ get_weak() }](const auto&, const auto&) {
+                    if (const auto page = weakThis.get())
+                    {
+                        page->_OnSidebarTabSwitchTick();
+                    }
+                });
+            }
+            _sidebarTabSwitchTimer.Start();
+        }
+
+        const auto count = static_cast<uint32_t>(_sidebarTabSwitchSnapshot.size());
+        if (count == 0)
+        {
+            return;
+        }
+        _sidebarTabSwitchIndex = (_sidebarTabSwitchIndex + 1) % count;
+        if (const auto idx = _GetTabIndex(_sidebarTabSwitchSnapshot[_sidebarTabSwitchIndex]))
+        {
+            _SelectTab(*idx);
+        }
+    }
+
+    void TerminalPage::_OnSidebarTabSwitchTick()
+    {
+        if (!_sidebarTabSwitchActive)
+        {
+            _sidebarTabSwitchTimer.Stop();
+            return;
+        }
+
+        // Commit as soon as Alt is no longer held. GetAsyncKeyState is global,
+        // so this still fires if the window lost focus while Alt was down.
+        if ((GetAsyncKeyState(VK_MENU) & 0x8000) == 0)
+        {
+            _sidebarTabSwitchTimer.Stop();
+            _EndSidebarTabSwitch(true);
+        }
+    }
+
+    void TerminalPage::_EndSidebarTabSwitch(const bool commit)
+    {
+        if (!_sidebarTabSwitchActive)
+        {
+            return;
+        }
+
+        _sidebarTabSwitchActive = false;
+        if (!commit && _sidebarTabSwitchOrigin)
+        {
+            if (const auto idx = _GetTabIndex(_sidebarTabSwitchOrigin))
+            {
+                _SelectTab(*idx);
+            }
+        }
+        _sidebarTabSwitchOrigin = nullptr;
+        _sidebarTabSwitchSnapshot.clear();
+        if (_edgeTabSidebarController)
+        {
+            // Unpinning schedules the usual collapse unless the pointer
+            // happens to be inside the sidebar.
+            _edgeTabSidebarController->SetPinned(false);
+        }
+    }
+
     void TerminalPage::Create()
     {
         // Hookup the key bindings
@@ -2177,6 +2282,17 @@ namespace winrt::TerminalApp::implementation
 
     bool TerminalPage::OnDirectKeyEvent(const uint32_t vkey, const uint8_t scanCode, const bool down)
     {
+        // While a sidebar tab switch is armed, swallow Esc to cancel it
+        // (restores the tab that was active when the switch started). The
+        // message loop only routes Esc to us, and only swallows it when we
+        // return true here, so normal Esc input is unaffected otherwise.
+        if (_sidebarTabSwitchActive && vkey == VK_ESCAPE && down)
+        {
+            _sidebarTabSwitchTimer.Stop();
+            _EndSidebarTabSwitch(false);
+            return true;
+        }
+
         const auto modifiers = _GetPressedModifierKeys();
         if (vkey == VK_SPACE && modifiers.IsAltPressed() && down)
         {

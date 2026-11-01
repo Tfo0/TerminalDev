@@ -567,6 +567,14 @@ void WindowEmperor::HandleCommandlineArgs(int nCmdShow)
                 _dispatchSpecialKey(msg);
                 continue;
             }
+            // Esc is only special while a keyboard-driven tab switch is armed
+            // in the target window (it cancels the switch). Swallow the key
+            // only when it was actually handled, so Esc keeps reaching the
+            // terminal normally at all other times.
+            if (msg.wParam == VK_ESCAPE && keyDown && _dispatchSpecialKey(msg))
+            {
+                continue;
+            }
 
             if (msg.message == WM_KEYDOWN)
             {
@@ -604,7 +612,7 @@ void WindowEmperor::HandleCommandlineArgs(int nCmdShow)
     __assume(false);
 }
 
-void WindowEmperor::_dispatchSpecialKey(const MSG& msg) const
+bool WindowEmperor::_dispatchSpecialKey(const MSG& msg) const
 {
     // Each CoreInput window is a child of our IslandWindow.
     // We can figure out the IslandWindow HWND via GetAncestor().
@@ -627,14 +635,14 @@ void WindowEmperor::_dispatchSpecialKey(const MSG& msg) const
         window = _mostRecentWindow();
         if (!window)
         {
-            return;
+            return false;
         }
     }
 
     const auto vkey = gsl::narrow_cast<uint32_t>(msg.wParam);
     const auto scanCode = gsl::narrow_cast<uint8_t>(msg.lParam >> 16);
     const bool keyDown = (msg.message & 1) == 0;
-    window->OnDirectKeyEvent(vkey, scanCode, keyDown);
+    return window->OnDirectKeyEvent(vkey, scanCode, keyDown);
 }
 
 void WindowEmperor::_dispatchCommandline(winrt::TerminalApp::CommandlineArgs args)

@@ -361,6 +361,18 @@ namespace winrt::TerminalApp::implementation
         void _UpdateTabWidthMode();
         void _ApplyTabPosition();
         void _SetEdgeTabSidebarExpanded(bool expanded);
+
+        // Keyboard tab switching via the expanded sidebar (alt+`): each press
+        // walks the MRU snapshot with live preview, releasing Alt commits.
+        bool _sidebarTabSwitchActive{ false };
+        uint32_t _sidebarTabSwitchIndex{ 0 };
+        TerminalApp::Tab _sidebarTabSwitchOrigin{ nullptr };
+        std::vector<TerminalApp::Tab> _sidebarTabSwitchSnapshot;
+        Windows::UI::Xaml::DispatcherTimer _sidebarTabSwitchTimer{ nullptr };
+        void _BeginOrAdvanceSidebarTabSwitch();
+        void _OnSidebarTabSwitchTick();
+        void _EndSidebarTabSwitch(bool commit);
+
         void _UpdateElevationShield();
         void _UpdateEdgeTitlebarTitle();
         void _SetBackgroundImage(const winrt::Microsoft::Terminal::Settings::Model::IAppearanceConfig& newAppearance);

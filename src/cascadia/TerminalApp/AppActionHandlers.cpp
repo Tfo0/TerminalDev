@@ -865,6 +865,16 @@ namespace winrt::TerminalApp::implementation
     void TerminalPage::_HandleShowTabSwitcher(const IInspectable& /*sender*/,
                                               const ActionEventArgs& args)
     {
+        // With the Edge-style vertical sidebar (Left/Right tab position), the
+        // switcher is the sidebar itself: expand and pin it, walk the tabs in
+        // MRU order on each re-press, commit when Alt is released.
+        if (_edgeTabSidebarController)
+        {
+            _BeginOrAdvanceSidebarTabSwitch();
+            args.Handled(true);
+            return;
+        }
+
         // Show this window's tabs in MRU order, with the previously-used tab
         // pre-selected, so tapping the bound chord once and releasing it
         // immediately switches to it, Alt+Tab style.

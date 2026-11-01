@@ -52,7 +52,7 @@ private:
     AppHost* _mostRecentWindow() const noexcept;
     bool _summonWindow(const SummonWindowSelectionArgs& args) const;
     void _summonAllWindows() const;
-    void _dispatchSpecialKey(const MSG& msg) const;
+    bool _dispatchSpecialKey(const MSG& msg) const;
     void _dispatchCommandline(winrt::TerminalApp::CommandlineArgs args);
     void _dispatchCommandlineCommon(winrt::array_view<const winrt::hstring> args, wil::zwstring_view currentDirectory, wil::zwstring_view envString, uint32_t showWindowCommand);
     safe_void_coroutine _dispatchCommandlineCurrentDesktop(winrt::TerminalApp::CommandlineArgs args);

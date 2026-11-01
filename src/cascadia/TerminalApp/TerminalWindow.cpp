@@ -936,6 +936,14 @@ namespace winrt::TerminalApp::implementation
     {
         if (_root)
         {
+            // Give the page first crack at Esc: while a sidebar tab switch is
+            // armed it cancels the switch, and the focused TermControl would
+            // otherwise consume Esc as terminal input before we ever see it.
+            if (vkey == VK_ESCAPE && down && _root->OnDirectKeyEvent(vkey, scanCode, down))
+            {
+                return true;
+            }
+
             // Manually bubble the OnDirectKeyEvent event up through the focus tree.
             auto xamlRoot{ _root->XamlRoot() };
             if (!xamlRoot)

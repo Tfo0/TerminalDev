@@ -33,7 +33,7 @@ namespace winrt::TerminalApp::implementation
         _collapseTimer.Interval(350ms);
         _collapseTimer.Tick([this](const auto&, const auto&) {
             _collapseTimer.Stop();
-            if (!_splitterDragging && !_pointerInside)
+            if (!_splitterDragging && !_pointerInside && !_pinned)
             {
                 _collapse();
             }
@@ -183,6 +183,29 @@ namespace winrt::TerminalApp::implementation
         return _isExpanded;
     }
 
+    void EdgeTabSidebarController::SetPinned(const bool pinned)
+    {
+        if (_pinned == pinned)
+        {
+            return;
+        }
+
+        _pinned = pinned;
+        if (pinned)
+        {
+            _collapseTimer.Stop();
+        }
+        else if (_isExpanded && !_pointerInside)
+        {
+            _scheduleCollapse();
+        }
+    }
+
+    void EdgeTabSidebarController::Expand()
+    {
+        _expand();
+    }
+
     void EdgeTabSidebarController::_expand()
     {
         if (_isVisible)
@@ -293,7 +316,7 @@ namespace winrt::TerminalApp::implementation
             _collapseTimer.Stop();
             _expand();
         }
-        else
+        else if (!_pinned)
         {
             _scheduleCollapse();
         }

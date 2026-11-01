@@ -27,6 +27,12 @@ namespace winrt::TerminalApp::implementation
         void SetVisible(bool visible);
         bool IsExpanded() const noexcept;
 
+        // Keyboard-driven tab switching (e.g. the tab switcher chord) pins
+        // the sidebar open: it expands immediately and stays expanded until
+        // unpinned, regardless of where the pointer is.
+        void SetPinned(bool pinned);
+        void Expand();
+
     private:
         static constexpr double CollapsedWidth{ EdgeTabLayout::CollapsedWidth };
         static constexpr double DefaultExpandedWidth{ 240.0 };
@@ -64,6 +70,7 @@ namespace winrt::TerminalApp::implementation
         bool _isVisible{ true };
         bool _pointerInside{ false };
         bool _splitterDragging{ false };
+        bool _pinned{ false };
         double _expandedWidth{ DefaultExpandedWidth };
         double _splitterDragStartX{ 0.0 };
         double _splitterDragStartWidth{ 0.0 };
